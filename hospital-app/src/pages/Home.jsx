@@ -1,6 +1,22 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Calendar, User, Clock } from 'lucide-react';
+import {
+    LogOut,
+    LayoutDashboard,
+    ClipboardList,
+    Stethoscope,
+    CalendarDays,
+    CalendarCheck,
+    ShieldCheck,
+    Clock3,
+    CalendarX,
+    Pencil,
+    RefreshCcw,
+    KeyRound,
+    Plus,
+    Menu,
+    X,
+} from 'lucide-react';
 import '../styles/pages/Home.css';
 
 function Home() {
@@ -8,6 +24,76 @@ function Home() {
     const [userName, setUserName] = useState('');
     const [userRole, setUserRole] = useState('');
     const [loading, setLoading] = useState(true);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const appointments = [
+        {
+            time: '9:30am',
+            date: 'March 24, 2026',
+            patientName: 'John Doe',
+            patientMeta: 'P - 12345 | Male, 35yrs old',
+            doctor: 'Dr. Michael Jones',
+            department: 'Cardiology',
+            status: 'Active',
+        },
+        {
+            time: '10:00am',
+            date: 'March 24, 2026',
+            patientName: 'Alice Smith',
+            patientMeta: 'P - 12345 | Female, 28yrs old',
+            doctor: 'Dr. Sarah Smith',
+            department: 'Cardiology',
+            status: 'Active',
+        },
+        {
+            time: '11:30am',
+            date: 'March 24, 2026',
+            patientName: 'Robert White',
+            patientMeta: 'P - 12345 | Male, 54yrs old',
+            doctor: 'Dr. David Lee',
+            department: 'Cardiology',
+            status: 'Active',
+        },
+        {
+            time: '1:15pm',
+            date: 'March 24, 2026',
+            patientName: 'Emily Miller',
+            patientMeta: 'P - 12345 | Female, 42yrs old',
+            doctor: 'Dr. Maria Garcia',
+            department: 'Cardiology',
+            status: 'Inactive',
+        },
+        {
+            time: '3:00pm',
+            date: 'March 24, 2026',
+            patientName: 'Thomas King',
+            patientMeta: 'P - 12345 | Male, 61yrs old',
+            doctor: 'Dr. Michael Jones',
+            department: 'Cardiology',
+            status: 'Active',
+        },
+        {
+            time: '4:10pm',
+            date: 'March 24, 2026',
+            patientName: 'Laura Johnson',
+            patientMeta: 'P - 12345 | Female, 31yrs old',
+            doctor: 'Dr. Jose Santos',
+            department: 'Cardiology',
+            status: 'Active',
+        },
+    ];
+
+    const mappedRole = useMemo(() => {
+        const roles = {
+            R001: 'Admin',
+            R002: 'Doctor',
+            R003: 'Patient',
+            ADMIN: 'Admin',
+            DOCTOR: 'Doctor',
+            PATIENT: 'Patient',
+        };
+        return roles[userRole] || 'User';
+    }, [userRole]);
 
     useEffect(() => {
         loadUserData();
@@ -47,102 +133,175 @@ function Home() {
 
     return (
         <div className="home-page">
-            <nav className="home-nav">
-                <div className="home-nav-inner">
-                    <div className="home-nav-row">
-                        <div className="home-brand">
-                            <div className="home-brand-icon">H</div>
-                            <h1 className="home-brand-title">Hospital Appointment Management</h1>
-                        </div>
-                        <div className="home-user-panel">
-                            <div className="home-user-text">
-                                <p className="home-user-name">{userName}</p>
-                                <p className="home-user-role">{userRole}</p>
+            {isSidebarOpen && <button type="button" className="home-sidebar-overlay" onClick={() => setIsSidebarOpen(false)} />}
+
+            <aside className={`home-sidebar ${isSidebarOpen ? 'home-sidebar-open' : ''}`}>
+                <div className="home-sidebar-top">
+                    <button type="button" className="home-sidebar-close" onClick={() => setIsSidebarOpen(false)}>
+                        <X size={18} />
+                    </button>
+                    <div className="home-sidebar-brand">logo/name</div>
+                </div>
+
+                <nav className="home-menu">
+                    <button type="button" className="home-menu-item">
+                        <LayoutDashboard size={19} />
+                        <span>Dashboard</span>
+                    </button>
+                    <button type="button" className="home-menu-item">
+                        <ClipboardList size={19} />
+                        <span>Manage</span>
+                    </button>
+                    <button type="button" className="home-menu-item">
+                        <Stethoscope size={19} />
+                        <span>Doctors</span>
+                    </button>
+                    <button type="button" className="home-menu-item home-menu-item-active">
+                        <CalendarDays size={19} />
+                        <span>Appointment</span>
+                    </button>
+                </nav>
+
+                <button type="button" onClick={handleLogout} className="home-sidebar-logout">
+                    <LogOut size={18} />
+                    <span>Logout</span>
+                </button>
+            </aside>
+
+            <div className="home-content">
+                <header className="home-topbar">
+                    <div className="home-topbar-left">
+                        <button type="button" className="home-menu-toggle" onClick={() => setIsSidebarOpen(true)}>
+                            <Menu size={20} />
+                        </button>
+                        <h1 className="home-title">Appointment</h1>
+                    </div>
+                    <div className="home-avatar" title={userName}>
+                        {userName ? userName.charAt(0).toUpperCase() : 'U'}
+                    </div>
+                </header>
+
+                <main className="home-main">
+                    <section className="home-stats-grid">
+                        <article className="home-stat-card">
+                            <div className="home-stat-icon home-stat-icon-blue">
+                                <CalendarCheck size={18} />
                             </div>
-                            <button onClick={handleLogout} className="home-logout-btn">
-                                <LogOut size={18} />
-                                <span>Logout</span>
+                            <div>
+                                <p className="home-stat-caption">TODAY'S VISITS</p>
+                                <p className="home-stat-number">42</p>
+                            </div>
+                        </article>
+
+                        <article className="home-stat-card">
+                            <div className="home-stat-icon home-stat-icon-green">
+                                <ShieldCheck size={18} />
+                            </div>
+                            <div>
+                                <p className="home-stat-caption">CONFIRMED</p>
+                                <p className="home-stat-number">38</p>
+                            </div>
+                        </article>
+
+                        <article className="home-stat-card">
+                            <div className="home-stat-icon home-stat-icon-orange">
+                                <Clock3 size={18} />
+                            </div>
+                            <div>
+                                <p className="home-stat-caption">WAITLIST</p>
+                                <p className="home-stat-number">12</p>
+                            </div>
+                        </article>
+
+                        <article className="home-stat-card">
+                            <div className="home-stat-icon home-stat-icon-red">
+                                <CalendarX size={18} />
+                            </div>
+                            <div>
+                                <p className="home-stat-caption">CANCELLATIONS</p>
+                                <p className="home-stat-number">4</p>
+                            </div>
+                        </article>
+                    </section>
+
+                    <section className="home-filters">
+                        <div className="home-filter-group">
+                            <button type="button" className="home-filter-btn home-filter-btn-dark">Today</button>
+                            <button type="button" className="home-filter-btn">Week</button>
+                            <button type="button" className="home-filter-btn">Month</button>
+                        </div>
+
+                        <div className="home-filter-group home-filter-group-end">
+                            <button type="button" className="home-filter-select">All Roles</button>
+                            <button type="button" className="home-filter-btn home-filter-btn-dark">All</button>
+                            <button type="button" className="home-filter-btn">Inactive</button>
+                            <button type="button" className="home-filter-btn">Active</button>
+                            <button type="button" className="home-add-btn">
+                                <Plus size={17} />
+                                <span>Add New Appointment</span>
                             </button>
                         </div>
-                    </div>
-                </div>
-            </nav>
+                    </section>
 
-            <main className="home-main">
-                <div className="home-welcome">
-                    <h2 className="home-welcome-title">Welcome back, {userName.split(' ')[0]}!</h2>
-                    <p className="home-welcome-subtitle">Manage your appointments and schedule with ease</p>
-                </div>
-
-                <div className="home-stats-grid">
-                    <div className="home-stat-card">
-                        <div className="home-stat-row">
-                            <div className="home-stat-icon-teal">
-                                <Calendar className="text-teal-600" size={24} />
-                            </div>
-                            <div>
-                                <p className="home-stat-number">0</p>
-                                <p className="home-stat-label">Total Appointments</p>
-                            </div>
+                    <section className="home-table-wrap">
+                        <div className="home-table-top">Showing {appointments.length} of 128 users</div>
+                        <div className="home-table-scroll">
+                            <table className="home-table">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Patient Info</th>
+                                        <th>Doctor</th>
+                                        <th>Department</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {appointments.map((row, index) => (
+                                        <tr key={`${row.patientName}-${index}`}>
+                                            <td>
+                                                <p className="home-row-main">{row.time}</p>
+                                                <p className="home-row-sub">{row.date}</p>
+                                            </td>
+                                            <td>
+                                                <p className="home-row-main">{row.patientName}</p>
+                                                <p className="home-row-sub">{row.patientMeta}</p>
+                                            </td>
+                                            <td className="home-row-main">{row.doctor}</td>
+                                            <td className="home-row-main">{row.department}</td>
+                                            <td>
+                                                <span
+                                                    className={`home-status ${
+                                                        row.status === 'Active' ? 'home-status-active' : 'home-status-inactive'
+                                                    }`}
+                                                >
+                                                    {row.status}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div className="home-actions-inline">
+                                                    <button type="button" className="home-action-icon" aria-label="Edit">
+                                                        <Pencil size={15} />
+                                                    </button>
+                                                    <button type="button" className="home-action-icon" aria-label="Refresh">
+                                                        <RefreshCcw size={15} />
+                                                    </button>
+                                                    <button type="button" className="home-action-icon" aria-label="Access">
+                                                        <KeyRound size={15} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
-                    </div>
+                    </section>
 
-                    <div className="home-stat-card">
-                        <div className="home-stat-row">
-                            <div className="home-stat-icon-blue">
-                                <Clock className="text-blue-600" size={24} />
-                            </div>
-                            <div>
-                                <p className="home-stat-number">0</p>
-                                <p className="home-stat-label">Upcoming</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="home-stat-card">
-                        <div className="home-stat-row">
-                            <div className="home-stat-icon-green">
-                                <User className="text-green-600" size={24} />
-                            </div>
-                            <div>
-                                <p className="home-stat-number">Active</p>
-                                <p className="home-stat-label">Account Status</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="home-actions-card">
-                    <h3 className="home-actions-title">Quick Actions</h3>
-                    <div className="home-actions-grid">
-                        {userRole === 'PATIENT' && (
-                            <>
-                                <button className="home-action-btn-primary">Book New Appointment</button>
-                                <button className="home-action-btn-secondary">View Medical History</button>
-                            </>
-                        )}
-                        {userRole === 'DOCTOR' && (
-                            <>
-                                <button className="home-action-btn-primary">View Schedule</button>
-                                <button className="home-action-btn-secondary">Manage Patients</button>
-                            </>
-                        )}
-                        {userRole === 'ADMIN' && (
-                            <>
-                                <button className="home-action-btn-primary">Manage Users</button>
-                                <button className="home-action-btn-secondary">View Reports</button>
-                            </>
-                        )}
-                    </div>
-                </div>
-
-                <div className="home-note">
-                    <h4 className="home-note-title">Protected Route Active</h4>
-                    <p className="home-note-text">
-                        This page is only accessible to authenticated users. Try logging out and accessing /home directly in the URL - you will be redirected to the login page.
-                    </p>
-                </div>
-            </main>
+                    <p className="home-footer-meta">Signed in as {mappedRole}</p>
+                </main>
+            </div>
         </div>
     );
 }
