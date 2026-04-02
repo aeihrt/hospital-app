@@ -1,0 +1,137 @@
+    @reference "tailwindcss";
+
+    .home-loading {
+    @apply min-h-screen bg-gray-50 flex items-center justify-center;
+    }
+
+    .home-loading-text {
+    @apply text-gray-600;
+    }
+
+    .home-page {
+    @apply min-h-screen bg-gray-50;
+    }
+
+    .home-nav {
+    @apply bg-white shadow-sm border-b;
+    }
+
+    .home-nav-inner {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+    }
+
+    .home-nav-row {
+    @apply flex justify-between items-center h-16;
+    }
+
+    .home-brand {
+    @apply flex items-center gap-3;
+    }
+
+    .home-brand-icon {
+    @apply w-10 h-10 bg-teal-500 rounded-lg flex items-center justify-center text-white font-bold;
+    }
+
+    .home-brand-title {
+    @apply text-xl font-bold text-gray-800;
+    }
+
+    .home-user-panel {
+    @apply flex items-center gap-4;
+    }
+
+    .home-user-text {
+    @apply text-right;
+    }
+
+    .home-user-name {
+    @apply text-xs md:text-sm font-medium text-gray-800;
+    }
+
+    .home-user-role {
+    @apply text-xs text-gray-500;
+    }
+
+    .home-logout-btn {
+    @apply flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors;
+    }
+
+    .home-main {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8;
+    }
+
+    .home-welcome {
+    @apply mb-8;
+    }
+
+    .home-welcome-title {
+    @apply text-2xl md:text-3xl font-bold text-gray-800 mb-2;
+    }
+
+    .home-welcome-subtitle {
+    @apply text-sm md:text-base text-gray-600;
+    }
+
+    .home-stats-grid {
+    @apply grid grid-cols-1 md:grid-cols-3 gap-6 mb-8;
+    }
+
+    .home-stat-card {
+    @apply bg-white rounded-xl shadow-sm p-6 border border-gray-100;
+    }
+
+    .home-stat-row {
+    @apply flex items-center gap-4;
+    }
+
+    .home-stat-icon-teal {
+    @apply w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center;
+    }
+
+    .home-stat-icon-blue {
+    @apply w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center;
+    }
+
+    .home-stat-icon-green {
+    @apply w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center;
+    }
+
+    .home-stat-number {
+    @apply text-2xl font-bold text-gray-800;
+    }
+
+    .home-stat-label {
+    @apply text-sm text-gray-600;
+    }
+
+    .home-actions-card {
+    @apply bg-white rounded-xl shadow-sm p-8 border border-gray-100;
+    }
+
+    .home-actions-title {
+    @apply text-xl font-bold text-gray-800 mb-4;
+    }
+
+    .home-actions-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4;
+    }
+
+    .home-action-btn-primary {
+    @apply p-3 md:p-4 border-2 border-teal-500 text-teal-500 rounded-lg hover:bg-teal-50 transition-colors font-medium text-sm md:text-base;
+    }
+
+    .home-action-btn-secondary {
+    @apply p-3 md:p-4 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm md:text-base;
+    }
+
+    .home-note {
+    @apply mt-8 bg-teal-50 border border-teal-200 rounded-xl p-6;
+    }
+
+    .home-note-title {
+    @apply font-semibold text-teal-900 mb-2;
+    }
+
+    .home-note-text {
+    @apply text-sm text-teal-700;
+    }
