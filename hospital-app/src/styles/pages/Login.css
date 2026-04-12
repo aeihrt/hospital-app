@@ -11,7 +11,7 @@
 }
 
 .login-left {
-    background: linear-gradient(135deg, #54ACB3 0%, #3f9da3 100%);
+    background: linear-gradient(135deg, #67bbc2 0%, #54ACB3 45%, #3f9da3 100%);
     @apply w-full md:w-1/2 flex items-center justify-center p-6 md:p-0;
 }
 
