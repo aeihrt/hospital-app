@@ -38,15 +38,15 @@
     }
 
     .landing-card {
-    @apply bg-white rounded-3xl shadow-lg p-8;
+    @apply bg-white rounded-3xl shadow-lg px-8 pb-8 pt-5;
     }
 
     .landing-heading {
-    @apply text-3xl font-bold text-gray-800 mb-2;
+    @apply text-3xl font-bold text-gray-800 mb-1;
     }
 
     .landing-subheading {
-    @apply text-gray-600 mb-8;
+    @apply text-gray-600 mb-4;
     }
 
     .landing-actions {
@@ -55,21 +55,31 @@
 
     .landing-primary-btn {
     background-color: #54ACB3;
-    @apply block w-full text-white py-3 px-4 rounded-xl font-semibold text-center transition-colors;
+    @apply block w-full text-white py-3 px-4 rounded-xl font-semibold text-center transition-colors no-underline;
     }
 
     .landing-primary-btn:hover {
     background-color: #469aa1;
+    @apply no-underline;
     }
 
     .landing-secondary-btn {
-    @apply block w-full border-2 py-3 px-4 rounded-xl font-semibold text-center transition-colors;
+    @apply block w-full border-2 py-3 px-4 rounded-xl font-semibold text-center transition-colors no-underline;
     border-color: #54ACB3;
     color: #54ACB3;
     }
 
     .landing-secondary-btn:hover {
     background-color: rgba(84, 172, 179, 0.1);
+    @apply no-underline;
+    }
+
+    .landing-top-image-wrap {
+    @apply flex justify-center mb-2;
+    }
+
+    .landing-top-image {
+    @apply w-44 h-44 md:w-85 md:h-85 object-contain;
     }
 
 :root {

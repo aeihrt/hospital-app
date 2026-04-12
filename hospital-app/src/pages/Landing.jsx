@@ -21,6 +21,14 @@ function Landing() {
             <div className="landing-right">
                 <div className="landing-form-wrap">
                     <div className="landing-card">
+                        <div className="landing-top-image-wrap">
+                            <img
+                                src="/medicine.png"
+                                alt="Medicine"
+                                className="landing-top-image"
+                            />
+                        </div>
+
                         <h2 className="landing-heading">Welcome!</h2>
                         <p className="landing-subheading">Manage hospital appointments with ease</p>
 
