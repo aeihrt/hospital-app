@@ -1,11 +1,12 @@
-    @reference "tailwindcss";
+@reference "tailwindcss";
 
     .landing-page {
     @apply min-h-screen flex flex-col md:flex-row;
     }
 
     .landing-left {
-    @apply w-full md:w-1/2 bg-teal-500 flex items-center justify-center p-6 md:p-0;
+    background: linear-gradient(135deg, #54ACB3 0%, #3f9da3 100%);
+    @apply w-full md:w-1/2 flex items-center justify-center p-6 md:p-0;
     }
 
     .landing-brand {
@@ -53,9 +54,42 @@
     }
 
     .landing-primary-btn {
-    @apply block w-full bg-teal-500 text-white py-3 px-4 rounded-xl font-semibold text-center hover:bg-teal-600 transition-colors;
+    background-color: #54ACB3;
+    @apply block w-full text-white py-3 px-4 rounded-xl font-semibold text-center transition-colors;
+    }
+
+    .landing-primary-btn:hover {
+    background-color: #469aa1;
     }
 
     .landing-secondary-btn {
-    @apply block w-full border-2 border-teal-500 text-teal-500 py-3 px-4 rounded-xl font-semibold text-center hover:bg-teal-50 transition-colors;
+    @apply block w-full border-2 py-3 px-4 rounded-xl font-semibold text-center transition-colors;
+    border-color: #54ACB3;
+    color: #54ACB3;
     }
+
+    .landing-secondary-btn:hover {
+    background-color: rgba(84, 172, 179, 0.1);
+    }
+
+:root {
+    --brand-teal: #54ACB3;
+    --brand-teal-dark: #469aa1;
+    --brand-teal-soft: rgba(84, 172, 179, 0.1);
+}
+
+.text-brand {
+    color: var(--brand-teal);
+}
+
+.bg-brand {
+    background-color: var(--brand-teal);
+}
+
+.bg-brand-dark {
+    background-color: var(--brand-teal-dark);
+}
+
+.border-brand {
+    border-color: var(--brand-teal);
+}
