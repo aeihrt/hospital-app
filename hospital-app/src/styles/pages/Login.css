@@ -90,7 +90,7 @@
 
 .login-forgot-link {
     color: var(--brand-teal);
-    @apply text-sm hover:underline;
+    @apply text-sm no-underline;
 }
 
 .login-input {
@@ -146,5 +146,5 @@
 
 .login-register-link {
     color: var(--brand-teal);
-    @apply font-medium hover:underline;
+    @apply font-medium no-underline;
 }

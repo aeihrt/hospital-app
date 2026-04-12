@@ -125,5 +125,5 @@
 
 .register-login-link {
     color: var(--brand-teal);
-    @apply hover:underline font-medium;
+    @apply font-medium no-underline;
 }
