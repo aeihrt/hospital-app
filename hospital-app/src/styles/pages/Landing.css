@@ -82,6 +82,10 @@
     @apply w-44 h-44 md:w-85 md:h-85 object-contain;
     }
 
+    .landing-app-logo {
+    @apply w-20 h-20 md:w-120 md:h-120 object-contain;
+    }
+
 :root {
     --brand-teal: #54ACB3;
     --brand-teal-dark: #469aa1;

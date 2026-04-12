@@ -3,6 +3,7 @@ import { Plus, Eye, EyeOff } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../styles/pages/Login.css';
 import { postJson } from '../utils/api';
+import appLogo from '../assets/app-logo.png';
 
 function Login() {
     const navigate = useNavigate();
@@ -52,9 +53,7 @@ function Login() {
             <div className="login-left">
                 <div className="login-brand">
                     <div className="login-icon-wrap">
-                        <div className="login-icon-box">
-                            <Plus size={48} strokeWidth={3} />
-                        </div>
+                        <img src={appLogo} alt="App Logo" className="login-app-logo" />
                     </div>
                     <h1 className="login-title">Hospital</h1>
                     <h1 className="login-title">Appointment</h1>

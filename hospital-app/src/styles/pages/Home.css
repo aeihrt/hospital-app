@@ -40,7 +40,11 @@
 }
 
 .home-sidebar-brand {
-    @apply text-xl font-semibold tracking-wide;
+    @apply flex items-center gap-2 text-xl font-semibold tracking-wide;
+}
+
+.home-app-logo {
+    @apply w-12 h-12 object-contain; /* smaller logo */
 }
 
 .home-menu {

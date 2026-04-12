@@ -127,3 +127,7 @@
     color: var(--brand-teal);
     @apply font-medium no-underline;
 }
+
+.register-app-logo {
+    @apply w-20 h-20 md:w-120 md:h-120 object-contain;
+}

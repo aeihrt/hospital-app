@@ -1,6 +1,7 @@
 import { Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import '../styles/pages/Landing.css';
+import appLogo from '../assets/app-logo.png';
 
 function Landing() {
     return (
@@ -8,9 +9,7 @@ function Landing() {
             <div className="landing-left">
                 <div className="landing-brand">
                     <div className="landing-icon-wrap">
-                        <div className="landing-icon-box">
-                            <Plus size={48} strokeWidth={3} />
-                        </div>
+                        <img src={appLogo} alt="App Logo" className="landing-app-logo" />
                     </div>
                     <h1 className="landing-title">Hospital</h1>
                     <h1 className="landing-title">Appointment</h1>

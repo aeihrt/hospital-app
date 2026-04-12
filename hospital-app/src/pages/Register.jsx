@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import '../styles/pages/Register.css';
 import { validatePassword } from '../utils/validation';
 import { postJson } from '../utils/api';
+import appLogo from '../assets/app-logo.png';
 
 function Register() {
     const navigate = useNavigate();
@@ -74,9 +75,7 @@ function Register() {
             <div className="register-left">
                 <div className="register-brand">
                     <div className="register-icon-wrap">
-                        <div className="register-icon-box">
-                            <Plus size={48} strokeWidth={3} />
-                        </div>
+                        <img src={appLogo} alt="App Logo" className="register-app-logo" />
                     </div>
                     <h1 className="register-title">Hospital</h1>
                     <h1 className="register-title">Appointment</h1>

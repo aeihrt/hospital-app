@@ -18,6 +18,7 @@ import {
     X,
 } from 'lucide-react';
 import '../styles/pages/Home.css';
+import appLogo from '../assets/app-logo.png';
 
 function Home() {
     const navigate = useNavigate();
@@ -132,7 +133,14 @@ function Home() {
     }
 
     return (
-        <div className="home-page">
+        <div
+            className="home-page"
+            style={{
+                '--brand-teal': '#54ACB3',
+                '--brand-teal-dark': '#469aa1',
+                '--brand-teal-soft': 'rgba(84, 172, 179, 0.1)',
+            }}
+        >
             {isSidebarOpen && <button type="button" className="home-sidebar-overlay" onClick={() => setIsSidebarOpen(false)} />}
 
             <aside className={`home-sidebar ${isSidebarOpen ? 'home-sidebar-open' : ''}`}>
@@ -140,7 +148,10 @@ function Home() {
                     <button type="button" className="home-sidebar-close" onClick={() => setIsSidebarOpen(false)}>
                         <X size={18} />
                     </button>
-                    <div className="home-sidebar-brand">logo/name</div>
+                    <div className="home-sidebar-brand">
+                        <img src={appLogo} alt="App Logo" className="home-app-logo" />
+                        <span>Hospital App</span>
+                    </div>
                 </div>
 
                 <nav className="home-menu">
