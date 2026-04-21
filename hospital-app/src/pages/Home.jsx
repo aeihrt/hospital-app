@@ -217,7 +217,7 @@ function Home() {
                 </div>
 
                 <nav className="home-menu">
-                    <button type="button" className="home-menu-item">
+                    <button type="button" className="home-menu-item" onClick={() => navigate('/dashboard')}>
                         <LayoutDashboard size={19} />
                         <span>Dashboard</span>
                     </button>
