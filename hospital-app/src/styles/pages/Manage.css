@@ -29,7 +29,7 @@
 }
 
 .manage-title {
-    @apply text-2xl leading-none font-semibold text-[#253d5e];
+    @apply text-2xl md:text-4xl font-semibold text-slate-700;
 }
 
 .manage-avatar {
