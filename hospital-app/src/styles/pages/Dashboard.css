@@ -187,16 +187,45 @@
 	color: #3f5874;
 }
 
-.dashboard-date-chip {
+.dashboard-date-search {
 	width: fit-content;
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
-	padding: 10px 14px;
+	padding: 6px 8px;
 	border-radius: 12px;
 	border: 1px solid #9ec9da;
-	color: #7599ad;
+	background: #f4f9fd;
+}
+
+.dashboard-date-search-input {
+	min-width: 180px;
+	border: 0;
 	background: transparent;
+	color: #496987;
+	font-size: 14px;
+	outline: none;
+}
+
+.dashboard-date-search-input::placeholder {
+	color: #7fa2bb;
+}
+
+.dashboard-date-search-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 10px;
+	border-radius: 10px;
+	border: 1px solid #9ec9da;
+	background: #ffffff;
+	color: #6b8ea6;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.dashboard-date-search-btn:hover {
+	background: #edf5fb;
 }
 
 .dashboard-stats-grid {
@@ -288,6 +317,15 @@
 	padding: 14px;
 	display: grid;
 	gap: 10px;
+}
+
+.dashboard-empty-state {
+	padding: 14px;
+	border: 1px dashed #9ec9da;
+	border-radius: 10px;
+	font-size: 14px;
+	color: #70859b;
+	text-align: center;
 }
 
 .dashboard-appointment-item {

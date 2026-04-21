@@ -24,6 +24,7 @@ function Dashboard() {
 	const [userRole, setUserRole] = useState('');
 	const [loading, setLoading] = useState(true);
 	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+	const [searchTerm, setSearchTerm] = useState('');
 
 	const mappedRole = useMemo(() => {
 		const roles = {
@@ -51,6 +52,21 @@ function Dashboard() {
 		{ label: 'Canceled', count: 9, width: '18%', className: 'dashboard-status-canceled' },
 		{ label: 'No-show', count: 5, width: '11%', className: 'dashboard-status-noshow' },
 	];
+
+	const filteredUpcomingAppointments = useMemo(() => {
+		const normalizedSearch = searchTerm.trim().toLowerCase();
+
+		if (!normalizedSearch) {
+			return upcomingAppointments;
+		}
+
+		return upcomingAppointments.filter((appointment) => {
+			const searchableText = `${appointment.patient} ${appointment.doctor} ${appointment.department} ${appointment.day} ${appointment.time}`
+				.toLowerCase();
+
+			return searchableText.includes(normalizedSearch);
+		});
+	}, [searchTerm, upcomingAppointments]);
 
 	useEffect(() => {
 		loadUserData();
@@ -80,15 +96,9 @@ function Dashboard() {
 		navigate('/login');
 	};
 
-	const formattedDate = useMemo(
-		() =>
-			new Date().toLocaleDateString('en-US', {
-				month: 'long',
-				day: 'numeric',
-				year: 'numeric',
-			}),
-		[]
-	);
+	const handleSearchSubmit = (event) => {
+		event.preventDefault();
+	};
 
 	if (loading) {
 		return (
@@ -157,10 +167,19 @@ function Dashboard() {
 							<h2 className="dashboard-welcome">Welcome back, {userName || 'Juan'}</h2>
 							<p className="dashboard-subtitle">Here's what's happening in your hospital today.</p>
 						</div>
-						<div className="dashboard-date-chip">
-							<Search size={15} />
-							<span>{formattedDate}</span>
-						</div>
+						<form className="dashboard-date-search" onSubmit={handleSearchSubmit}>
+							<input
+								type="search"
+								className="dashboard-date-search-input"
+								placeholder="Search appointments"
+								value={searchTerm}
+								onChange={(event) => setSearchTerm(event.target.value)}
+							/>
+							<button type="submit" className="dashboard-date-search-btn" aria-label="Search appointments">
+								<Search size={15} />
+								<span>Search</span>
+							</button>
+						</form>
 					</section>
 
 					<section className="dashboard-stats-grid">
@@ -189,7 +208,7 @@ function Dashboard() {
 								<button type="button">View all</button>
 							</div>
 							<div className="dashboard-appointments-list">
-								{upcomingAppointments.map((appointment) => (
+								{filteredUpcomingAppointments.map((appointment) => (
 									<div key={`${appointment.patient}-${appointment.time}`} className="dashboard-appointment-item">
 										<div>
 											<p className="dashboard-appointment-name">{appointment.patient}</p>
@@ -201,6 +220,9 @@ function Dashboard() {
 										</div>
 									</div>
 								))}
+								{filteredUpcomingAppointments.length === 0 && (
+									<p className="dashboard-empty-state">No appointments match your search.</p>
+								)}
 							</div>
 						</article>
 
