@@ -1,0 +1,208 @@
+@reference "tailwindcss";
+
+.manage-loading {
+    @apply min-h-screen flex items-center justify-center bg-[#eff3f8];
+}
+
+.manage-loading-text {
+    @apply text-[#637085] font-medium;
+}
+
+.manage-page {
+    @apply min-h-screen flex bg-[#eff3f8] text-[#2d4769];
+}
+
+.manage-content {
+    @apply w-full;
+}
+
+.manage-topbar {
+    @apply h-20 bg-white border-b border-[#ccd8e5] flex items-center justify-between px-4 md:px-6;
+}
+
+.manage-topbar-left {
+    @apply flex items-center gap-3;
+}
+
+.manage-menu-toggle {
+    @apply inline-flex md:hidden border border-[#ccd8e5] rounded-lg p-2 bg-white text-[#455a73];
+}
+
+.manage-title {
+    @apply text-2xl leading-none font-semibold text-[#253d5e];
+}
+
+.manage-avatar {
+    @apply w-[50px] h-[50px] rounded-full border border-[#ccd8e5] bg-[#e8edf3] text-[#2d4769] flex items-center justify-center text-xl font-bold;
+}
+
+.manage-main {
+    @apply p-4 md:py-[18px] md:px-6 grid gap-3;
+}
+
+.manage-header-row {
+    @apply flex flex-col md:flex-row md:items-center md:justify-between gap-[10px];
+}
+
+.manage-welcome {
+    @apply text-2xl leading-tight font-semibold text-[#203e63];
+}
+
+.manage-subtitle {
+    @apply text-sm md:text-base text-[#3f5874];
+}
+
+.manage-add-user-btn {
+    @apply w-fit inline-flex items-center gap-2 py-[9px] px-[14px] rounded-xl border border-[#76bcc7] bg-white text-[#1f3557] text-[15px] shadow-[0_3px_8px_rgba(31,53,87,0.15)];
+}
+
+.manage-filter-row {
+    @apply grid grid-cols-1 md:grid-cols-[1fr_auto_auto] md:items-center gap-2;
+}
+
+.manage-search-wrap {
+    @apply h-[42px] flex items-center gap-2 px-[10px] border border-[#9ec9da] rounded-[10px] bg-[#f7fbff] text-[#6f93ad];
+}
+
+.manage-search-wrap input {
+    @apply w-full border-0 outline-none bg-transparent text-[#496987] text-sm;
+}
+
+.manage-role-select {
+    @apply h-[42px] border border-[#9ec9da] rounded-[10px] bg-[#f7fbff] text-[#375a7c] px-[10px] text-[15px];
+}
+
+.manage-status-filter {
+    @apply flex items-center gap-2;
+}
+
+.manage-status-btn {
+    @apply border border-[#9ec9da] rounded-[10px] bg-white text-[#2e4f72] text-[15px] py-2 px-[14px];
+}
+
+.manage-status-btn-active {
+    @apply bg-[#3f5676] border-[#3f5676] text-white;
+}
+
+.manage-table-wrap {
+    @apply border border-[#9bb9cc] rounded-2xl bg-white overflow-hidden;
+}
+
+.manage-table-top {
+    @apply py-3 px-[14px] text-[15px] md:text-base text-[#344f70] border-b border-[#c6d3de] font-semibold;
+}
+
+.manage-table-scroll {
+    @apply overflow-x-auto;
+}
+
+.manage-table {
+    @apply w-full min-w-[940px] border-collapse;
+}
+
+.manage-table thead th {
+    @apply text-left py-[10px] px-[14px] border-b border-[#c6d3de] text-base text-[#263f62];
+}
+
+.manage-table tbody td {
+    @apply py-[10px] px-[14px] border-b border-[#d6e1ea] align-top;
+}
+
+.manage-table tbody tr:last-child td {
+    @apply border-b-0;
+}
+
+.manage-cell-main {
+    @apply text-[15px] md:text-base text-[#2a4467] font-medium leading-[1.2];
+}
+
+.manage-cell-sub {
+    @apply mt-0.5 text-sm text-[#6f93ad];
+}
+
+.manage-status-pill {
+    @apply inline-flex min-w-[102px] justify-center rounded-lg text-sm py-0.5 px-3;
+}
+
+.manage-status-pill-active {
+    @apply bg-[#cae9d6] text-[#34a064];
+}
+
+.manage-status-pill-inactive {
+    @apply bg-[#efcfd1] text-[#bc5155];
+}
+
+.manage-actions-inline {
+    @apply flex items-center gap-[10px];
+}
+
+.manage-action-icon {
+    @apply w-7 h-7 rounded-lg border border-[#c8d6e0] bg-white text-[#446486] inline-flex items-center justify-center;
+}
+
+.manage-footer-meta {
+    @apply text-xs text-[#6f93ad];
+}
+
+.manage-modal-overlay {
+    @apply fixed inset-0 bg-[rgba(0,0,0,0.42)] z-[80] p-[10px] flex items-center justify-center;
+}
+
+.manage-modal {
+    @apply w-full max-w-[760px] bg-[#f3f6fa] border border-[#c7d4df] rounded-2xl shadow-[0_20px_46px_rgba(0,0,0,0.27)] overflow-hidden;
+}
+
+.manage-modal-head {
+    @apply flex items-center justify-between gap-2 py-[14px] px-5 border-b border-[#c7d4df];
+}
+
+.manage-modal-title-wrap {
+    @apply flex items-center gap-2 text-[#1f3557];
+}
+
+.manage-modal-title-wrap h2 {
+    @apply text-2xl leading-none;
+}
+
+.manage-modal-close {
+    @apply border-0 bg-transparent text-[#1e1f22];
+}
+
+.manage-modal-form {
+    @apply p-[18px] md:px-5 md:py-[18px] grid grid-cols-1 md:grid-cols-2 gap-3;
+}
+
+.manage-field {
+    @apply flex flex-col gap-2;
+}
+
+.manage-field-full {
+    @apply col-span-1 md:col-span-2;
+}
+
+.manage-field label {
+    @apply text-base text-[#1f3557];
+}
+
+.manage-field input,
+.manage-field select {
+    @apply h-12 rounded-[14px] border border-[#61bbce] bg-[#eef4f9] px-[14px] text-sm text-[#375a7c] outline-none;
+}
+
+.manage-field input:focus,
+.manage-field select:focus {
+    @apply shadow-[0_0_0_3px_rgba(97,187,206,0.25)];
+}
+
+.manage-cancel-btn,
+.manage-save-btn {
+    @apply rounded-2xl py-2 px-6 text-[15px] font-normal shadow-[0_1px_2px_rgba(15,23,42,0.16)];
+}
+
+.manage-cancel-btn {
+    @apply border border-[#469aa1] bg-white text-[#1f3557];
+}
+
+.manage-save-btn {
+    @apply border border-[#415473] bg-[#415473] text-white;
+}

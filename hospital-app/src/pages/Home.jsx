@@ -221,7 +221,7 @@ function Home() {
                         <LayoutDashboard size={19} />
                         <span>Dashboard</span>
                     </button>
-                    <button type="button" className="home-menu-item">
+                    <button type="button" className="home-menu-item" onClick={() => navigate('/manage')}>
                         <ClipboardList size={19} />
                         <span>Manage</span>
                     </button>
