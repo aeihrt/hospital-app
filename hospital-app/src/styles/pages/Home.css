@@ -216,3 +216,64 @@
 .home-footer-meta {
     @apply text-xs text-slate-500;
 }
+
+.home-add-modal-overlay {
+    @apply fixed inset-0 bg-black/40 z-50 p-3 sm:p-6 flex items-center justify-center;
+}
+
+.home-add-modal {
+    @apply w-full max-w-3xl bg-slate-100 border border-slate-300 rounded-2xl shadow-2xl;
+}
+
+.home-add-modal-head {
+    @apply flex items-center gap-2 px-5 py-4 border-b border-slate-300 text-slate-800;
+}
+
+.home-add-modal-head h2 {
+    @apply text-2xl md:text-4xl font-semibold;
+}
+
+.home-add-modal-form {
+    @apply p-5 grid grid-cols-1 md:grid-cols-2 gap-4;
+}
+
+.home-add-field {
+    @apply flex flex-col gap-2;
+}
+
+.home-add-field-full {
+    @apply md:col-span-2;
+}
+
+.home-add-field label {
+    @apply text-slate-800 text-xl;
+}
+
+.home-add-field input,
+.home-add-field textarea {
+    @apply w-full rounded-2xl border bg-transparent px-4 py-3 text-slate-700 placeholder-slate-400 outline-none;
+    border-color: var(--brand-teal);
+}
+
+.home-add-field input:focus,
+.home-add-field textarea:focus {
+    box-shadow: 0 0 0 3px rgba(84, 172, 179, 0.2);
+}
+
+.home-add-field textarea {
+    @apply resize-y min-h-36;
+}
+
+.home-add-actions {
+    @apply md:col-span-2 mt-2 flex justify-end gap-4;
+}
+
+.home-add-cancel {
+    @apply px-6 py-2 rounded-2xl bg-white text-slate-800 border shadow-sm;
+    border-color: var(--brand-teal-dark);
+}
+
+.home-add-submit {
+    @apply px-6 py-2 rounded-2xl text-white shadow-sm;
+    background-color: #415473;
+}

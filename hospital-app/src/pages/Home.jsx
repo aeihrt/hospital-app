@@ -26,8 +26,17 @@ function Home() {
     const [userRole, setUserRole] = useState('');
     const [loading, setLoading] = useState(true);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [newAppointment, setNewAppointment] = useState({
+        patientName: '',
+        doctor: '',
+        department: '',
+        date: '',
+        time: '',
+        notes: '',
+    });
 
-    const appointments = [
+    const [appointments, setAppointments] = useState([
         {
             time: '9:30am',
             date: 'March 24, 2026',
@@ -82,7 +91,7 @@ function Home() {
             department: 'Cardiology',
             status: 'Active',
         },
-    ];
+    ]);
 
     const mappedRole = useMemo(() => {
         const roles = {
@@ -122,6 +131,59 @@ function Home() {
         localStorage.removeItem('user_id');
         localStorage.removeItem('user_name');
         navigate('/login');
+    };
+
+    const closeAddModal = () => {
+        setIsAddModalOpen(false);
+        setNewAppointment({
+            patientName: '',
+            doctor: '',
+            department: '',
+            date: '',
+            time: '',
+            notes: '',
+        });
+    };
+
+    const handleAddInputChange = (event) => {
+        const { name, value } = event.target;
+        setNewAppointment((previous) => ({ ...previous, [name]: value }));
+    };
+
+    const handleCreateAppointment = (event) => {
+        event.preventDefault();
+
+        const requiredFields = ['patientName', 'doctor', 'department', 'date', 'time'];
+        const hasAllRequiredFields = requiredFields.every((field) => newAppointment[field]?.trim());
+
+        if (!hasAllRequiredFields) {
+            return;
+        }
+
+        const formattedDate = new Date(newAppointment.date).toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+        });
+
+        const formattedTime = new Date(`1970-01-01T${newAppointment.time}`)
+            .toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+            .toLowerCase();
+
+        setAppointments((previous) => [
+            {
+                time: formattedTime,
+                date: formattedDate,
+                patientName: newAppointment.patientName.trim(),
+                patientMeta: newAppointment.notes.trim() || 'P - N/A | N/A',
+                doctor: newAppointment.doctor.trim(),
+                department: newAppointment.department.trim(),
+                status: 'Active',
+            },
+            ...previous,
+        ]);
+
+        closeAddModal();
     };
 
     if (loading) {
@@ -247,7 +309,7 @@ function Home() {
                             <button type="button" className="home-filter-btn home-filter-btn-dark">All</button>
                             <button type="button" className="home-filter-btn">Inactive</button>
                             <button type="button" className="home-filter-btn">Active</button>
-                            <button type="button" className="home-add-btn">
+                            <button type="button" className="home-add-btn" onClick={() => setIsAddModalOpen(true)}>
                                 <Plus size={17} />
                                 <span>Add New Appointment</span>
                             </button>
@@ -313,6 +375,95 @@ function Home() {
                     <p className="home-footer-meta">Signed in as {mappedRole}</p>
                 </main>
             </div>
+
+            {isAddModalOpen && (
+                <div className="home-add-modal-overlay" onClick={closeAddModal}>
+                    <div
+                        className="home-add-modal"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="Add New Appointment"
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        <div className="home-add-modal-head">
+                            <Plus size={26} />
+                            <h2>Add New Appointment</h2>
+                        </div>
+
+                        <form className="home-add-modal-form" onSubmit={handleCreateAppointment}>
+                            <div className="home-add-field home-add-field-full">
+                                <label htmlFor="patientName">Patient Name</label>
+                                <input
+                                    id="patientName"
+                                    name="patientName"
+                                    type="text"
+                                    placeholder="Search Patient Name"
+                                    value={newAppointment.patientName}
+                                    onChange={handleAddInputChange}
+                                    required
+                                />
+                            </div>
+
+                            <div className="home-add-field">
+                                <label htmlFor="doctor">Select Doctor</label>
+                                <input
+                                    id="doctor"
+                                    name="doctor"
+                                    type="text"
+                                    placeholder="e.g. Maria"
+                                    value={newAppointment.doctor}
+                                    onChange={handleAddInputChange}
+                                    required
+                                />
+                            </div>
+
+                            <div className="home-add-field">
+                                <label htmlFor="department">Department</label>
+                                <input
+                                    id="department"
+                                    name="department"
+                                    type="text"
+                                    placeholder="e.g. Reyes"
+                                    value={newAppointment.department}
+                                    onChange={handleAddInputChange}
+                                    required
+                                />
+                            </div>
+
+                            <div className="home-add-field">
+                                <label htmlFor="date">Date</label>
+                                <input id="date" name="date" type="date" value={newAppointment.date} onChange={handleAddInputChange} required />
+                            </div>
+
+                            <div className="home-add-field">
+                                <label htmlFor="time">Time</label>
+                                <input id="time" name="time" type="time" value={newAppointment.time} onChange={handleAddInputChange} required />
+                            </div>
+
+                            <div className="home-add-field home-add-field-full">
+                                <label htmlFor="notes">Notes</label>
+                                <textarea
+                                    id="notes"
+                                    name="notes"
+                                    placeholder="Active"
+                                    rows={5}
+                                    value={newAppointment.notes}
+                                    onChange={handleAddInputChange}
+                                />
+                            </div>
+
+                            <div className="home-add-actions">
+                                <button type="button" className="home-add-cancel" onClick={closeAddModal}>
+                                    Cancel
+                                </button>
+                                <button type="submit" className="home-add-submit">
+                                    Create Appointment
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
