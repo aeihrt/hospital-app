@@ -1,29 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-	LogOut,
-	LayoutDashboard,
-	ClipboardList,
-	Stethoscope,
-	CalendarDays,
 	Search,
 	Plus,
-	Menu,
 	X,
 	Pencil,
 	RefreshCcw,
 	KeyRound,
 } from 'lucide-react';
-import '../styles/pages/Home.css';
 import '../styles/pages/Manage.css';
-import appLogo from '../assets/app-logo.png';
+import AppLayout from '../components/AppLayout';
 
 function Manage() {
 	const navigate = useNavigate();
 	const [userName, setUserName] = useState('');
 	const [userRole, setUserRole] = useState('');
 	const [loading, setLoading] = useState(true);
-	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 	const [searchTerm, setSearchTerm] = useState('');
 	const [selectedRole, setSelectedRole] = useState('All Roles');
 	const [selectedStatus, setSelectedStatus] = useState('All');
@@ -156,150 +148,100 @@ function Manage() {
 	}
 
 	return (
-		<div className="manage-page">
-			{isSidebarOpen && <button type="button" className="home-sidebar-overlay" onClick={() => setIsSidebarOpen(false)} />}
-
-			<aside className={`home-sidebar ${isSidebarOpen ? 'home-sidebar-open' : ''}`}>
-				<div className="home-sidebar-top">
-					<button type="button" className="home-sidebar-close" onClick={() => setIsSidebarOpen(false)} aria-label="Close sidebar">
-						<X size={18} />
-					</button>
-					<div className="home-sidebar-brand">
-						<img src={appLogo} alt="App Logo" className="home-app-logo" />
-						<span>Hospital App</span>
+		<AppLayout activePage="manage" title="User Management" userName={userName} onLogout={handleLogout}>
+			<main className="manage-main">
+				<section className="manage-header-row">
+					<div>
+						<h2 className="manage-welcome">Welcome back, {userName || 'Juan'} <span aria-hidden="true">👋</span></h2>
+						<p className="manage-subtitle">Manage all system users, roles, and account status.</p>
 					</div>
-				</div>
+					<button type="button" className="manage-add-user-btn" onClick={() => setIsAddModalOpen(true)}>
+						<Plus size={16} />
+						<span>Add New User</span>
+					</button>
+				</section>
 
-				<nav className="home-menu">
-					<button type="button" className="home-menu-item" onClick={() => navigate('/dashboard')}>
-						<LayoutDashboard size={19} />
-						<span>Dashboard</span>
-					</button>
-					<button type="button" className="home-menu-item home-menu-item-active">
-						<ClipboardList size={19} />
-						<span>Manage</span>
-					</button>
-					<button type="button" className="home-menu-item">
-						<Stethoscope size={19} />
-						<span>Doctors</span>
-					</button>
-					<button type="button" className="home-menu-item" onClick={() => navigate('/home')}>
-						<CalendarDays size={19} />
-						<span>Appointment</span>
-					</button>
-				</nav>
-
-				<button type="button" onClick={handleLogout} className="home-sidebar-logout">
-					<LogOut size={18} />
-					<span>Logout</span>
-				</button>
-			</aside>
-
-			<div className="manage-content">
-				<header className="manage-topbar">
-					<div className="manage-topbar-left">
-						<button type="button" className="manage-menu-toggle" onClick={() => setIsSidebarOpen(true)}>
-							<Menu size={20} />
-						</button>
-						<h1 className="manage-title">User Management</h1>
+				<section className="manage-filter-row">
+					<div className="manage-search-wrap">
+						<Search size={15} />
+						<input
+							type="search"
+							placeholder="Search here"
+							value={searchTerm}
+							onChange={(event) => setSearchTerm(event.target.value)}
+						/>
 					</div>
-					<div className="manage-avatar" title={userName}>{userName ? userName.charAt(0).toUpperCase() : 'J'}</div>
-				</header>
+					<select className="manage-role-select select-dark" value={selectedRole} onChange={(event) => setSelectedRole(event.target.value)}>
+						<option>All Roles</option>
+						<option>Admin</option>
+						<option>Doctor</option>
+						<option>Patient</option>
+					</select>
+					<div className="manage-status-filter">
+						{['All', 'Inactive', 'Active'].map((status) => (
+							<button
+								key={status}
+								type="button"
+								className={`manage-status-btn ${selectedStatus === status ? 'manage-status-btn-active' : ''}`}
+								onClick={() => setSelectedStatus(status)}
+							>
+								{status}
+							</button>
+						))}
+					</div>
+				</section>
 
-				<main className="manage-main">
-					<section className="manage-header-row">
-						<div>
-							<h2 className="manage-welcome">Welcome back, {userName || 'Juan'} <span aria-hidden="true">👋</span></h2>
-							<p className="manage-subtitle">Manage all system users, roles, and account status.</p>
-						</div>
-						<button type="button" className="manage-add-user-btn" onClick={() => setIsAddModalOpen(true)}>
-							<Plus size={16} />
-							<span>Add New User</span>
-						</button>
-					</section>
-
-					<section className="manage-filter-row">
-						<div className="manage-search-wrap">
-							<Search size={15} />
-							<input
-								type="search"
-								placeholder="Search here"
-								value={searchTerm}
-								onChange={(event) => setSearchTerm(event.target.value)}
-							/>
-						</div>
-						<select className="manage-role-select" value={selectedRole} onChange={(event) => setSelectedRole(event.target.value)}>
-							<option>All Roles</option>
-							<option>Admin</option>
-							<option>Doctor</option>
-							<option>Patient</option>
-						</select>
-						<div className="manage-status-filter">
-							{['All', 'Inactive', 'Active'].map((status) => (
-								<button
-									key={status}
-									type="button"
-									className={`manage-status-btn ${selectedStatus === status ? 'manage-status-btn-active' : ''}`}
-									onClick={() => setSelectedStatus(status)}
-								>
-									{status}
-								</button>
-							))}
-						</div>
-					</section>
-
-					<section className="manage-table-wrap">
-						<div className="manage-table-top">Showing {filteredUsers.length} of {users.length} users</div>
-						<div className="manage-table-scroll">
-							<table className="manage-table">
-								<thead>
-									<tr>
-										<th>Users</th>
-										<th>Phone</th>
-										<th>Role</th>
-										<th>Status</th>
-										<th>Created At</th>
-										<th>Action</th>
+				<section className="manage-table-wrap">
+					<div className="manage-table-top">Showing {filteredUsers.length} of {users.length} users</div>
+					<div className="manage-table-scroll">
+						<table className="manage-table">
+							<thead>
+								<tr>
+									<th>Users</th>
+									<th>Phone</th>
+									<th>Role</th>
+									<th>Status</th>
+									<th>Created At</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody>
+								{filteredUsers.map((user, index) => (
+									<tr key={`${user.email}-${index}`}>
+										<td>
+											<p className="manage-cell-main">{user.fullName}</p>
+											<p className="manage-cell-sub">{user.email}</p>
+										</td>
+										<td className="manage-cell-main">{user.phone}</td>
+										<td className="manage-cell-main">{user.role}</td>
+										<td>
+											<span className={`manage-status-pill ${user.status === 'Active' ? 'manage-status-pill-active' : 'manage-status-pill-inactive'}`}>
+												{user.status}
+											</span>
+										</td>
+										<td className="manage-cell-main">{user.createdAt}</td>
+										<td>
+											<div className="manage-actions-inline">
+												<button type="button" className="manage-action-icon" aria-label="Edit user">
+													<Pencil size={14} />
+												</button>
+												<button type="button" className="manage-action-icon" aria-label="Refresh user">
+													<RefreshCcw size={14} />
+												</button>
+												<button type="button" className="manage-action-icon" aria-label="Access key">
+													<KeyRound size={14} />
+												</button>
+											</div>
+										</td>
 									</tr>
-								</thead>
-								<tbody>
-									{filteredUsers.map((user, index) => (
-										<tr key={`${user.email}-${index}`}>
-											<td>
-												<p className="manage-cell-main">{user.fullName}</p>
-												<p className="manage-cell-sub">{user.email}</p>
-											</td>
-											<td className="manage-cell-main">{user.phone}</td>
-											<td className="manage-cell-main">{user.role}</td>
-											<td>
-												<span className={`manage-status-pill ${user.status === 'Active' ? 'manage-status-pill-active' : 'manage-status-pill-inactive'}`}>
-													{user.status}
-												</span>
-											</td>
-											<td className="manage-cell-main">{user.createdAt}</td>
-											<td>
-												<div className="manage-actions-inline">
-													<button type="button" className="manage-action-icon" aria-label="Edit user">
-														<Pencil size={14} />
-													</button>
-													<button type="button" className="manage-action-icon" aria-label="Refresh user">
-														<RefreshCcw size={14} />
-													</button>
-													<button type="button" className="manage-action-icon" aria-label="Access key">
-														<KeyRound size={14} />
-													</button>
-												</div>
-											</td>
-										</tr>
-									))}
-								</tbody>
-							</table>
-						</div>
-					</section>
+								))}
+							</tbody>
+						</table>
+					</div>
+				</section>
 
-					<p className="manage-footer-meta">Signed in as {mappedRole}</p>
-				</main>
-			</div>
+				<p className="manage-footer-meta">Signed in as {mappedRole}</p>
+			</main>
 
 			{isAddModalOpen && (
 				<div className="manage-modal-overlay" onClick={closeAddModal}>
@@ -366,7 +308,7 @@ function Manage() {
 					</div>
 				</div>
 			)}
-		</div>
+		</AppLayout>
 	);
 }
 

@@ -8,34 +8,6 @@
     @apply text-[#637085] font-medium;
 }
 
-.dashboard-page {
-    @apply min-h-screen flex bg-[#eff3f8] text-[#455a73];
-}
-
-.dashboard-content {
-    @apply w-full;
-}
-
-.dashboard-topbar {
-    @apply h-20 bg-white border-b border-[#ccd8e5] flex items-center justify-between px-4 md:px-6;
-}
-
-.dashboard-topbar-left {
-    @apply flex items-center gap-3;
-}
-
-.dashboard-menu-toggle {
-    @apply inline-flex md:hidden border border-[#ccd8e5] rounded-lg p-2 bg-white text-[#455a73];
-}
-
-.dashboard-title {
-    @apply text-2xl md:text-4xl font-semibold text-slate-700;
-}
-
-.dashboard-avatar {
-    @apply w-[50px] h-[50px] rounded-full border border-[#ccd8e5] bg-[#e8edf3] text-[#2d4769] flex items-center justify-center text-xl font-bold;
-}
-
 .dashboard-main {
     @apply p-4 md:p-5 xl:py-5 xl:px-[18px] grid gap-3;
 }
@@ -45,11 +17,11 @@
 }
 
 .dashboard-welcome {
-    @apply text-2xl md:text-4xl leading-tight font-semibold text-[#203e63];
+    @apply text-xl md:text-2xl leading-tight font-semibold text-[#203e63];
 }
 
 .dashboard-subtitle {
-    @apply text-sm md:text-xl text-[#3f5874];
+    @apply text-sm text-[#3f5874];
 }
 
 .dashboard-date-search {
@@ -89,11 +61,11 @@
 }
 
 .dashboard-stat-value {
-    @apply text-2xl md:text-[34px] leading-none font-semibold text-[#1f3557];
+    @apply m-0 text-2xl leading-none font-semibold text-[#1f3557];
 }
 
 .dashboard-stat-label {
-    @apply mt-1 text-sm md:text-base text-[#7791a8];
+    @apply m-0 text-sm leading-none text-[#7791a8];
 }
 
 .dashboard-panels-grid {
@@ -109,11 +81,11 @@
 }
 
 .dashboard-panel-head h3 {
-    @apply text-2xl md:text-[34px] leading-none font-medium text-[#29486f];
+    @apply text-base md:text-lg leading-none font-semibold text-[#29486f];
 }
 
 .dashboard-panel-head button {
-    @apply text-sm md:text-base text-[#6f8ca2] bg-transparent border-0;
+    @apply text-sm text-[#6f8ca2] bg-transparent border-0;
 }
 
 .dashboard-appointments-list {
@@ -129,7 +101,7 @@
 }
 
 .dashboard-appointment-name {
-    @apply text-xl md:text-2xl leading-tight font-semibold text-[#243f62];
+    @apply text-sm md:text-base leading-tight font-semibold text-[#243f62];
 }
 
 .dashboard-appointment-meta {
@@ -141,7 +113,7 @@
 }
 
 .dashboard-appointment-day {
-    @apply text-xl md:text-2xl leading-tight font-semibold text-[#243f62];
+    @apply text-sm md:text-base leading-tight font-semibold text-[#243f62];
 }
 
 .dashboard-appointment-time {
@@ -157,7 +129,7 @@
 }
 
 .dashboard-status-label-wrap {
-    @apply flex items-center gap-2 min-w-[160px] text-base md:text-xl text-[#2b4f75];
+    @apply flex items-center gap-2 min-w-[120px] text-sm md:text-base text-[#2b4f75];
 }
 
 .dashboard-status-dot {
@@ -173,7 +145,7 @@
 }
 
 .dashboard-status-count {
-    @apply min-w-[26px] text-right text-base md:text-xl text-[#2e4f72];
+    @apply min-w-[26px] text-right text-sm md:text-base text-[#2e4f72];
 }
 
 .dashboard-status-booked {

@@ -8,34 +8,6 @@
     @apply text-[#637085] font-medium;
 }
 
-.manage-page {
-    @apply min-h-screen flex bg-[#eff3f8] text-[#2d4769];
-}
-
-.manage-content {
-    @apply w-full;
-}
-
-.manage-topbar {
-    @apply h-20 bg-white border-b border-[#ccd8e5] flex items-center justify-between px-4 md:px-6;
-}
-
-.manage-topbar-left {
-    @apply flex items-center gap-3;
-}
-
-.manage-menu-toggle {
-    @apply inline-flex md:hidden border border-[#ccd8e5] rounded-lg p-2 bg-white text-[#455a73];
-}
-
-.manage-title {
-    @apply text-2xl md:text-4xl font-semibold text-slate-700;
-}
-
-.manage-avatar {
-    @apply w-[50px] h-[50px] rounded-full border border-[#ccd8e5] bg-[#e8edf3] text-[#2d4769] flex items-center justify-center text-xl font-bold;
-}
-
 .manage-main {
     @apply p-4 md:py-[18px] md:px-6 grid gap-3;
 }
@@ -69,7 +41,8 @@
 }
 
 .manage-role-select {
-    @apply h-[42px] border border-[#9ec9da] rounded-[10px] bg-[#f7fbff] text-[#375a7c] px-[10px] text-[15px];
+    @apply h-[42px];
+    /* appearance overridden by .select-dark */
 }
 
 .manage-status-filter {
