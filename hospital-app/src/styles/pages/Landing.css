@@ -1,113 +1,87 @@
 @reference "tailwindcss";
 
-    .landing-page {
+.landing-page {
     @apply min-h-screen flex flex-col md:flex-row;
-    }
+}
 
-    .landing-left {
+.landing-left {
     background:
         linear-gradient(270deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.58) 28%, rgba(255, 255, 255, 0.1) 56%, rgba(255, 255, 255, 0) 74%),
         radial-gradient(circle at 70% 38%, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0) 48%),
         linear-gradient(135deg, #dff5f7 0%, #96d8de 35%, #49afb8 65%, #1f7f89 100%);
     @apply w-full md:w-1/2 flex items-center justify-center p-6 md:p-0;
-    }
+}
 
-    .landing-brand {
+.landing-brand {
     @apply text-center text-slate-800;
     text-shadow: 0 1px 3px rgba(255, 255, 255, 0.35);
-    }
+}
 
-    .landing-icon-wrap {
+.landing-icon-wrap {
     @apply mb-8 flex justify-center;
-    }
+}
 
-    .landing-icon-box {
+.landing-icon-box {
     @apply w-20 md:w-24 h-20 md:h-24 border-4 border-white rounded-2xl flex items-center justify-center;
-    }
+}
 
-    .landing-title {
+.landing-title {
     @apply text-3xl md:text-5xl font-bold mb-2;
-    }
+}
 
-    .landing-title-last {
+.landing-title-last {
     @apply text-3xl md:text-5xl font-bold;
-    }
+}
 
-    .landing-right {
+.landing-right {
     @apply w-full md:w-1/2 bg-gray-50 flex items-center justify-center p-4 md:p-0;
-    }
+}
 
-    .landing-form-wrap {
+.landing-form-wrap {
     @apply w-full max-w-md p-4 md:p-8;
-    }
+}
 
-    .landing-card {
-    @apply bg-white rounded-3xl shadow-lg px-8 pb-8 pt-5;
-    }
+.landing-card {
+    @apply bg-white rounded-3xl shadow-lg p-8;
+}
 
-    .landing-heading {
-    @apply text-3xl font-bold text-gray-800 mb-1;
-    }
+.landing-heading {
+    @apply text-3xl font-bold text-gray-800 mb-2;
+}
 
-    .landing-subheading {
-    @apply text-gray-600 mb-4;
-    }
+.landing-subheading {
+    @apply text-gray-600 mb-6;
+}
 
-    .landing-actions {
-    @apply space-y-4;
-    }
+.landing-actions {
+    @apply space-y-3;
+}
 
-    .landing-primary-btn {
-    background-color: #54ACB3;
-    @apply block w-full text-white py-3 px-4 rounded-xl font-semibold text-center transition-colors no-underline;
-    }
+.landing-primary-btn {
+    background-color: var(--brand-teal);
+    @apply block w-full text-white py-3 px-4 rounded-full font-semibold text-center transition-colors no-underline;
+}
 
-    .landing-primary-btn:hover {
-    background-color: #469aa1;
+.landing-primary-btn:hover {
+    background-color: var(--brand-teal-dark);
     @apply no-underline;
-    }
+}
 
-    .landing-secondary-btn {
-    @apply block w-full border-2 py-3 px-4 rounded-xl font-semibold text-center transition-colors no-underline;
-    border-color: #54ACB3;
-    color: #54ACB3;
-    }
+.landing-secondary-btn {
+    @apply block w-full border border-gray-300 bg-gray-100 text-gray-700 py-3 px-4 rounded-full font-semibold text-center transition-colors no-underline;
+}
 
-    .landing-secondary-btn:hover {
-    background-color: rgba(84, 172, 179, 0.1);
+.landing-secondary-btn:hover {
+    @apply bg-gray-200;
     @apply no-underline;
-    }
+}
 
-    .landing-top-image-wrap {
-    @apply flex justify-center mb-2;
-    }
-
-    .landing-top-image {
-    @apply w-44 h-44 md:w-85 md:h-85 object-contain;
-    }
-
-    .landing-app-logo {
+.landing-app-logo {
     @apply w-20 h-20 md:w-120 md:h-120 object-contain;
-    }
+}
 
 :root {
     --brand-teal: #54ACB3;
     --brand-teal-dark: #469aa1;
     --brand-teal-soft: rgba(84, 172, 179, 0.1);
-}
-
-.text-brand {
-    color: var(--brand-teal);
-}
-
-.bg-brand {
-    background-color: var(--brand-teal);
-}
-
-.bg-brand-dark {
-    background-color: var(--brand-teal-dark);
-}
-
-.border-brand {
-    border-color: var(--brand-teal);
 }

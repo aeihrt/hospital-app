@@ -9,6 +9,7 @@ import {
     RefreshCcw,
     KeyRound,
     Plus,
+    X,
 } from 'lucide-react';
 import '../styles/pages/Home.css';
 import AppLayout from '../components/AppLayout';
@@ -22,6 +23,7 @@ function Home() {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isCreatingAppointment, setIsCreatingAppointment] = useState(false);
     const [addAppointmentError, setAddAppointmentError] = useState('');
+    const [statusFilter, setStatusFilter] = useState('All');
     const [newAppointment, setNewAppointment] = useState({
         patientName: '',
         doctor: '',
@@ -99,6 +101,14 @@ function Home() {
         };
         return roles[userRole] || 'User';
     }, [userRole]);
+
+    const filteredAppointments = useMemo(() => {
+        if (statusFilter === 'All') {
+            return appointments;
+        }
+
+        return appointments.filter((appointment) => appointment.status === statusFilter);
+    }, [appointments, statusFilter]);
 
     useEffect(() => {
         loadUserData();
@@ -194,6 +204,17 @@ function Home() {
     return (
         <AppLayout activePage="appointment" title="Appointment" userName={userName} onLogout={handleLogout}>
             <main className="home-main">
+                <section className="home-header-row">
+                    <div>
+                        <h2 className="home-welcome">Appointment Management</h2>
+                        <p className="home-subtitle">View and manage today's appointment schedule.</p>
+                    </div>
+                    <button type="button" className="home-add-btn" onClick={() => setIsAddModalOpen(true)}>
+                        <Plus size={16} />
+                        <span>Add New Appointment</span>
+                    </button>
+                </section>
+
                 <section className="home-stats-grid">
                     <article className="home-stat-card">
                         <div className="home-stat-icon home-stat-icon-blue">
@@ -236,32 +257,34 @@ function Home() {
                     </article>
                 </section>
 
-                <section className="home-filters">
-                    <div className="home-filter-group">
+                <section className="home-filter-row">
+                    <div className="home-filter-time-group">
                         <button type="button" className="home-filter-btn home-filter-btn-dark">Today</button>
                         <button type="button" className="home-filter-btn">Week</button>
                         <button type="button" className="home-filter-btn">Month</button>
                     </div>
-
-                    <div className="home-filter-group home-filter-group-end">
-                        <select className="select-dark">
-                            <option>All Roles</option>
-                            <option>Admin</option>
-                            <option>Doctor</option>
-                            <option>Patient</option>
-                        </select>
-                        <button type="button" className="home-filter-btn home-filter-btn-dark">All</button>
-                        <button type="button" className="home-filter-btn">Inactive</button>
-                        <button type="button" className="home-filter-btn">Active</button>
-                        <button type="button" className="home-add-btn" onClick={() => setIsAddModalOpen(true)}>
-                            <Plus size={17} />
-                            <span>Add New Appointment</span>
-                        </button>
+                    <select className="select-dark">
+                        <option>All Roles</option>
+                        <option>Admin</option>
+                        <option>Doctor</option>
+                        <option>Patient</option>
+                    </select>
+                    <div className="home-status-filter">
+                        {['All', 'Inactive', 'Active'].map((status) => (
+                            <button
+                                key={status}
+                                type="button"
+                                className={`home-status-btn ${statusFilter === status ? 'home-status-btn-active' : ''}`}
+                                onClick={() => setStatusFilter(status)}
+                            >
+                                {status}
+                            </button>
+                        ))}
                     </div>
                 </section>
 
                 <section className="home-table-wrap">
-                    <div className="home-table-top">Showing {appointments.length} of 128 users</div>
+                    <div className="home-table-top">Showing {filteredAppointments.length} of {appointments.length} users</div>
                     <div className="home-table-scroll">
                         <table className="home-table">
                             <thead>
@@ -275,7 +298,7 @@ function Home() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {appointments.map((row, index) => (
+                                {filteredAppointments.map((row, index) => (
                                     <tr key={`${row.patientName}-${index}`}>
                                         <td>
                                             <p className="home-row-main">{row.time}</p>
@@ -316,7 +339,6 @@ function Home() {
                     </div>
                 </section>
 
-                <p className="home-footer-meta">Signed in as {mappedRole}</p>
             </main>
 
             {isAddModalOpen && (
@@ -329,8 +351,13 @@ function Home() {
                         onClick={(event) => event.stopPropagation()}
                     >
                         <div className="home-add-modal-head">
-                            <Plus size={26} />
-                            <h2>Add New Appointment</h2>
+                            <div className="home-add-modal-title-wrap">
+                                <Plus size={26} />
+                                <h2>Add New Appointment</h2>
+                            </div>
+                            <button type="button" className="home-add-modal-close" onClick={closeAddModal} aria-label="Close modal">
+                                <X size={22} />
+                            </button>
                         </div>
 
                         <form className="home-add-modal-form" onSubmit={handleCreateAppointment}>

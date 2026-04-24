@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     LogOut,
@@ -21,6 +21,20 @@ const NAV_ITEMS = [
 function AppLayout({ children, activePage, title, userName, onLogout }) {
     const navigate = useNavigate();
     const [isSidebarOpen, setIsSidebarOpen] = useState(() => window.innerWidth >= 768);
+
+    const mappedRole = useMemo(() => {
+        const userRole = localStorage.getItem('user_role') || '';
+        const roles = {
+            R001: 'Admin',
+            R002: 'Doctor',
+            R003: 'Patient',
+            ADMIN: 'Admin',
+            DOCTOR: 'Doctor',
+            PATIENT: 'Patient',
+        };
+
+        return roles[userRole] || 'User';
+    }, []);
 
     const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
 
@@ -83,7 +97,10 @@ function AppLayout({ children, activePage, title, userName, onLogout }) {
 
                 {/* Page content */}
                 <div className="app-content">
-                    {children}
+                    <div className="app-content-shell">
+                        {children}
+                        <p className="app-role-meta">Signed in as {mappedRole}</p>
+                    </div>
                 </div>
             </div>
         </div>

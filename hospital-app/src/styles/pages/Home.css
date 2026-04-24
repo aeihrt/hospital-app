@@ -9,15 +9,27 @@
 }
 
 .home-main {
-    @apply p-4 md:p-6 space-y-4;
+    @apply p-4 md:py-[18px] md:px-6 grid gap-3;
+}
+
+.home-header-row {
+    @apply flex flex-col md:flex-row md:items-center md:justify-between gap-[10px];
+}
+
+.home-welcome {
+    @apply text-2xl leading-tight font-semibold text-[#203e63];
+}
+
+.home-subtitle {
+    @apply text-sm md:text-base text-[#3f5874];
 }
 
 .home-stats-grid {
-    @apply grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4;
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3;
 }
 
 .home-stat-card {
-    @apply bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-3 shadow-sm;
+    @apply bg-white border border-[#aebdcd] rounded-[14px] p-[14px] flex items-center gap-3;
 }
 
 .home-stat-icon {
@@ -46,23 +58,31 @@
 }
 
 .home-stat-number {
-    @apply text-3xl font-bold text-slate-700 leading-none mt-0;
+    @apply text-2xl sm:text-3xl font-bold text-slate-700 leading-none mt-0;
 }
 
-.home-filters {
-    @apply flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3;
+.home-filter-row {
+    @apply grid grid-cols-1 md:grid-cols-[1fr_auto_auto] md:items-center gap-2;
 }
 
-.home-filter-group {
+.home-filter-time-group {
     @apply flex flex-wrap items-center gap-2;
 }
 
-.home-filter-group-end {
-    @apply lg:justify-end;
+.home-status-filter {
+    @apply flex flex-wrap items-center gap-2;
+}
+
+.home-status-btn {
+    @apply border border-[#9ec9da] rounded-[10px] bg-white text-[#2e4f72] text-[15px] py-2 px-[14px];
+}
+
+.home-status-btn-active {
+    @apply bg-[#3f5676] border-[#3f5676] text-white;
 }
 
 .home-filter-btn {
-    @apply px-4 py-2 rounded-xl border bg-white text-slate-700 hover:bg-[rgba(84,172,179,0.08)] transition-colors;
+    @apply px-4 py-2 rounded-xl border bg-white text-[#1f3557] text-[15px] hover:bg-[rgba(84,172,179,0.08)] transition-colors;
     border-color: var(--brand-teal);
 }
 
@@ -71,20 +91,16 @@
     @apply text-white border-transparent hover:opacity-95;
 }
 
-/* .home-filter-select replaced by .select-dark */
-
 .home-add-btn {
-    @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-slate-700 hover:bg-[rgba(84,172,179,0.08)];
-    border: 1px solid var(--brand-teal);
+    @apply w-fit inline-flex items-center gap-2 py-[9px] px-[14px] rounded-xl border border-[#76bcc7] bg-white text-[#1f3557] text-[15px] shadow-[0_3px_8px_rgba(31,53,87,0.15)];
 }
 
 .home-table-wrap {
-    @apply bg-white border rounded-2xl overflow-hidden;
-    border-color: rgba(84, 172, 179, 0.25);
+    @apply bg-white border border-[#9bb9cc] rounded-2xl overflow-hidden;
 }
 
 .home-table-top {
-    @apply px-4 py-3 border-b border-slate-200 font-semibold text-slate-600;
+    @apply py-3 px-[14px] text-[15px] md:text-base text-[#344f70] border-b border-[#c6d3de] font-semibold;
 }
 
 .home-table-scroll {
@@ -112,15 +128,15 @@
 }
 
 .home-status {
-    @apply inline-flex min-w-24 justify-center px-3 py-1 rounded-full text-sm font-semibold;
+    @apply inline-flex min-w-[102px] justify-center rounded-lg text-sm py-0.5 px-3;
 }
 
 .home-status-active {
-    @apply bg-emerald-100 text-emerald-700;
+    @apply bg-[#cae9d6] text-[#34a064];
 }
 
 .home-status-inactive {
-    @apply bg-rose-100 text-rose-700;
+    @apply bg-[#efcfd1] text-[#bc5155];
 }
 
 .home-actions-inline {
@@ -136,27 +152,36 @@
 }
 
 .home-add-modal-overlay {
-    @apply fixed inset-0 bg-black/40 z-50 p-3 sm:p-6 flex items-center justify-center;
+    @apply fixed inset-0 bg-[rgba(0,0,0,0.42)] z-[80] p-[10px] flex items-center justify-center;
 }
 
 .home-add-modal {
-    @apply w-full max-w-3xl bg-slate-100 border border-slate-300 rounded-2xl shadow-2xl;
+    @apply w-full max-w-[760px] bg-[#f3f6fa] border border-[#c7d4df] rounded-2xl shadow-[0_20px_46px_rgba(0,0,0,0.27)] overflow-hidden overflow-y-auto;
+    max-height: calc(100dvh - 24px);
 }
 
 .home-add-modal-head {
-    @apply flex items-center gap-2 px-5 py-4 border-b border-slate-300 text-slate-800;
+    @apply flex items-center justify-between gap-2 py-[14px] px-5 border-b border-[#c7d4df];
 }
 
-.home-add-modal-head h2 {
-    @apply text-2xl leading-none font-normal;
+.home-add-modal-title-wrap {
+    @apply flex items-center gap-2 text-[#1f3557];
+}
+
+.home-add-modal-title-wrap h2 {
+    @apply text-2xl leading-none;
+}
+
+.home-add-modal-close {
+    @apply border-0 bg-transparent text-[#1e1f22];
 }
 
 .home-add-modal-form {
-    @apply p-5 grid grid-cols-1 md:grid-cols-2 gap-4;
+    @apply p-[18px] md:px-5 md:py-[18px] grid grid-cols-1 md:grid-cols-2 gap-3;
 }
 
 .home-add-error {
-    @apply md:col-span-2 text-sm text-rose-700 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2;
+    @apply col-span-1 md:col-span-2 text-sm text-rose-700 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2;
 }
 
 .home-add-field {
@@ -164,40 +189,41 @@
 }
 
 .home-add-field-full {
-    @apply md:col-span-2;
+    @apply col-span-1 md:col-span-2;
 }
 
 .home-add-field label {
-    @apply text-slate-800 text-xl;
+    @apply text-base text-[#1f3557];
 }
 
 .home-add-field input,
 .home-add-field textarea {
-    @apply w-full rounded-2xl border bg-transparent px-4 py-3 text-slate-700 placeholder-slate-400 outline-none;
-    border-color: var(--brand-teal);
+    @apply w-full rounded-[14px] border border-[#61bbce] bg-[#eef4f9] px-[14px] text-sm text-[#375a7c] outline-none;
+}
+
+.home-add-field input {
+    @apply h-12;
 }
 
 .home-add-field input:focus,
 .home-add-field textarea:focus {
-    box-shadow: 0 0 0 3px rgba(84, 172, 179, 0.2);
+    @apply shadow-[0_0_0_3px_rgba(97,187,206,0.25)];
 }
 
 .home-add-field textarea {
-    @apply resize-y min-h-36;
+    @apply resize-y min-h-[120px] py-3;
 }
 
 .home-add-actions {
-    @apply md:col-span-2 mt-2 flex justify-end gap-4;
+    @apply col-span-1 md:col-span-2 mt-2 flex justify-end gap-4;
 }
 
 .home-add-cancel {
-    @apply px-6 py-2 rounded-2xl bg-white text-slate-800 border shadow-sm;
-    border-color: var(--brand-teal-dark);
+    @apply rounded-2xl py-2 px-6 text-[15px] font-normal shadow-[0_1px_2px_rgba(15,23,42,0.16)] border border-[#469aa1] bg-white text-[#1f3557];
 }
 
 .home-add-submit {
-    @apply px-6 py-2 rounded-2xl text-white shadow-sm;
-    background-color: #415473;
+    @apply rounded-2xl py-2 px-6 text-[15px] font-normal shadow-[0_1px_2px_rgba(15,23,42,0.16)] border border-[#415473] bg-[#415473] text-white;
 }
 
 .home-add-submit:disabled {

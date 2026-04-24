@@ -240,7 +240,6 @@ function Manage() {
 					</div>
 				</section>
 
-				<p className="manage-footer-meta">Signed in as {mappedRole}</p>
 			</main>
 
 			{isAddModalOpen && (

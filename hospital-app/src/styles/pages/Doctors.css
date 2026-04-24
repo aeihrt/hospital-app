@@ -123,8 +123,20 @@
 }
 
 .doctors-profile-head {
-	@apply py-4 px-4 text-center text-white;
+	@apply py-4 px-4 text-center text-white relative;
 	background: linear-gradient(180deg, #4da7b1 0%, #24535a 100%);
+}
+
+.doctors-online-dot {
+	@apply absolute top-2.5 right-2.5 w-2.5 h-2.5 rounded-full;
+}
+
+.doctors-online-dot-active {
+	@apply bg-[#17b83f];
+}
+
+.doctors-online-dot-inactive {
+	@apply bg-[#e33e4d];
 }
 
 .doctors-avatar {
@@ -149,4 +161,131 @@
 
 .doctors-profile-row:last-child {
 	@apply border-b-0;
+}
+
+.doctors-profile-actions {
+	@apply mt-3 pt-2 border-t border-[#cfdbe4] flex items-center justify-between gap-3;
+}
+
+.doctors-card-view-btn {
+	@apply min-w-[70px] py-1 px-4 rounded-[10px] border border-[#3599b0] text-[#1f3557] text-sm leading-none bg-[#edf7f9];
+}
+
+.doctors-card-state-btn {
+	@apply min-w-[100px] py-1 px-3 rounded-[10px] text-sm leading-none border;
+}
+
+.doctors-card-state-btn-danger {
+	@apply bg-[#f8dfe2] text-[#b45458] border-[#d8898d];
+}
+
+.doctors-card-state-btn-success {
+	@apply bg-[#cae9d6] text-[#34a064] border-[#8bc8a6];
+}
+
+.doctors-view-overlay,
+.doctors-form-overlay {
+	@apply fixed inset-0 bg-[rgba(0,0,0,0.42)] z-[90] p-[10px] flex items-center justify-center;
+}
+
+.doctors-view-modal {
+	@apply w-full max-w-[980px] bg-[#f3f6fa] border border-[#c7d4df] rounded-2xl shadow-[0_20px_46px_rgba(0,0,0,0.27)] overflow-hidden;
+}
+
+.doctors-view-head {
+	@apply py-6 px-5 text-center text-white;
+	background: linear-gradient(180deg, #4da7b1 0%, #24535a 100%);
+}
+
+.doctors-avatar-large {
+	@apply w-16 h-16 text-[30px] mb-3;
+}
+
+.doctors-profile-name-large {
+	@apply text-2xl;
+}
+
+.doctors-profile-specialty-large {
+	@apply text-sm py-1 px-4;
+}
+
+.doctors-view-body {
+	@apply p-5;
+}
+
+.doctors-view-section-title {
+	@apply text-lg font-semibold text-[#3f5874] mb-3;
+}
+
+.doctors-view-grid {
+	@apply grid grid-cols-1 md:grid-cols-2 gap-3 mb-4;
+}
+
+.doctors-view-item {
+	@apply rounded-2xl bg-[#9dc7cd] border border-[#80bac2] px-3 py-2;
+}
+
+.doctors-view-item label {
+	@apply block text-[#3d5963] text-sm;
+}
+
+.doctors-view-item p {
+	@apply text-[#1f3557] text-lg leading-tight font-semibold m-0;
+}
+
+.doctors-view-schedule-grid {
+	@apply grid grid-cols-1 md:grid-cols-2 gap-3;
+}
+
+.doctors-view-schedule-card {
+	@apply rounded-2xl bg-[#7ab8c0] border border-[#5caab5] px-3 py-2;
+}
+
+.doctors-view-schedule-card strong {
+	@apply block text-[#0a4c57] text-lg leading-none;
+}
+
+.doctors-view-schedule-card p {
+	@apply m-0 text-[#0c5a66] text-base leading-tight;
+}
+
+.doctors-form-modal {
+	@apply relative w-full max-w-[760px] bg-[#f3f6fa] border border-[#c7d4df] rounded-2xl shadow-[0_20px_46px_rgba(0,0,0,0.27)] p-7;
+}
+
+.doctors-form-close {
+	@apply absolute top-4 right-4 border-0 bg-transparent text-[#1e1f22];
+}
+
+.doctors-form-grid {
+	@apply grid grid-cols-1 md:grid-cols-2 gap-4;
+}
+
+.doctors-form-field {
+	@apply flex flex-col gap-2;
+}
+
+.doctors-form-field-full {
+	@apply col-span-1 md:col-span-2;
+}
+
+.doctors-form-field label {
+	@apply text-base text-[#1f3557];
+}
+
+.doctors-form-field input,
+.doctors-form-select {
+	@apply h-12 rounded-[14px] border border-[#57b7cb] bg-[#eef4f9] px-4 text-sm text-[#6a8ba5] outline-none;
+}
+
+.doctors-form-actions {
+	@apply mt-2 flex justify-end gap-4;
+}
+
+.doctors-cancel-btn {
+	@apply rounded-2xl py-2 px-6 text-[15px] border border-[#3a9aac] bg-white text-[#1f3557] shadow-[0_1px_2px_rgba(15,23,42,0.16)];
+}
+
+.doctors-update-btn {
+	@apply rounded-2xl py-2 px-8 text-[15px] border border-[#415473] bg-[#415473] text-white shadow-[0_1px_2px_rgba(15,23,42,0.16)];
 }

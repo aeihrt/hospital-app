@@ -105,6 +105,14 @@
     transition: margin-left 300ms ease-in-out;
 }
 
+.app-content-shell {
+    @apply min-h-full flex flex-col;
+}
+
+.app-role-meta {
+    @apply px-4 md:px-6 pb-4 text-xs text-[#6f93ad];
+}
+
 @media (min-width: 768px) {
     .app-layout-sidebar-open .app-content {
         margin-left: var(--sidebar-width);
