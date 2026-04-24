@@ -31,6 +31,7 @@ function Login() {
             const result = await postJson('login.php', {
                 email: formData.email,
                 password: formData.password,
+                role,
             });
 
             const firstName = result.user?.first_name || '';

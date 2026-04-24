@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import '../styles/pages/Home.css';
 import AppLayout from '../components/AppLayout';
+import { postJson } from '../utils/api';
 
 function Home() {
     const navigate = useNavigate();
@@ -19,6 +20,8 @@ function Home() {
     const [userRole, setUserRole] = useState('');
     const [loading, setLoading] = useState(true);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isCreatingAppointment, setIsCreatingAppointment] = useState(false);
+    const [addAppointmentError, setAddAppointmentError] = useState('');
     const [newAppointment, setNewAppointment] = useState({
         patientName: '',
         doctor: '',
@@ -127,6 +130,7 @@ function Home() {
 
     const closeAddModal = () => {
         setIsAddModalOpen(false);
+        setAddAppointmentError('');
         setNewAppointment({
             patientName: '',
             doctor: '',
@@ -142,40 +146,41 @@ function Home() {
         setNewAppointment((previous) => ({ ...previous, [name]: value }));
     };
 
-    const handleCreateAppointment = (event) => {
+    const handleCreateAppointment = async (event) => {
         event.preventDefault();
+        setAddAppointmentError('');
 
         const requiredFields = ['patientName', 'doctor', 'department', 'date', 'time'];
         const hasAllRequiredFields = requiredFields.every((field) => newAppointment[field]?.trim());
 
         if (!hasAllRequiredFields) {
+            setAddAppointmentError('Please fill in all required fields.');
             return;
         }
 
-        const formattedDate = new Date(newAppointment.date).toLocaleDateString('en-US', {
-            month: 'long',
-            day: 'numeric',
-            year: 'numeric',
-        });
+        try {
+            setIsCreatingAppointment(true);
 
-        const formattedTime = new Date(`1970-01-01T${newAppointment.time}`)
-            .toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
-            .toLowerCase();
-
-        setAppointments((previous) => [
-            {
-                time: formattedTime,
-                date: formattedDate,
+            const response = await postJson('appointments.php', {
                 patientName: newAppointment.patientName.trim(),
-                patientMeta: newAppointment.notes.trim() || 'P - N/A | N/A',
                 doctor: newAppointment.doctor.trim(),
                 department: newAppointment.department.trim(),
-                status: 'Active',
-            },
-            ...previous,
-        ]);
+                date: newAppointment.date,
+                time: newAppointment.time,
+                notes: newAppointment.notes.trim(),
+                createdBy: localStorage.getItem('user_id') || null,
+            });
 
-        closeAddModal();
+            if (response?.appointment) {
+                setAppointments((previous) => [response.appointment, ...previous]);
+            }
+
+            closeAddModal();
+        } catch (error) {
+            setAddAppointmentError(error?.message || 'Failed to create appointment.');
+        } finally {
+            setIsCreatingAppointment(false);
+        }
     };
 
     if (loading) {
@@ -329,6 +334,8 @@ function Home() {
                         </div>
 
                         <form className="home-add-modal-form" onSubmit={handleCreateAppointment}>
+                            {addAppointmentError && <p className="home-add-error">{addAppointmentError}</p>}
+
                             <div className="home-add-field home-add-field-full">
                                 <label htmlFor="patientName">Patient Name</label>
                                 <input
@@ -394,8 +401,8 @@ function Home() {
                                 <button type="button" className="home-add-cancel" onClick={closeAddModal}>
                                     Cancel
                                 </button>
-                                <button type="submit" className="home-add-submit">
-                                    Create Appointment
+                                <button type="submit" className="home-add-submit" disabled={isCreatingAppointment}>
+                                    {isCreatingAppointment ? 'Creating...' : 'Create Appointment'}
                                 </button>
                             </div>
                         </form>

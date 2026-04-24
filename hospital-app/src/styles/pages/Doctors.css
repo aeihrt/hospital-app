@@ -1,0 +1,152 @@
+@reference "tailwindcss";
+
+.doctors-main {
+	@apply p-4 md:py-[18px] md:px-6 grid gap-3;
+}
+
+.doctors-stats-grid {
+	@apply grid grid-cols-1 md:grid-cols-3 gap-[10px];
+}
+
+.doctors-stat-card {
+	@apply bg-white border border-[#9bb9cc] rounded-[12px] py-4 px-[14px] flex items-center gap-3;
+}
+
+.doctors-stat-icon {
+	@apply w-9 h-9 rounded-[9px] bg-[#f3e9e7] text-[#2a4467] inline-flex items-center justify-center;
+}
+
+.doctors-stat-icon-green {
+	@apply bg-[#e5f4eb] text-[#2f9a63];
+}
+
+.doctors-stat-icon-red {
+	@apply bg-[#f8e5e5] text-[#c35a5e];
+}
+
+.doctors-stat-caption {
+	@apply m-0 text-xs font-semibold text-[#9aaec2] tracking-wide;
+}
+
+.doctors-stat-value {
+	@apply m-0 text-2xl leading-none font-semibold text-[#1f3557];
+}
+
+.doctors-filter-row {
+	@apply flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3;
+}
+
+.doctors-tabs {
+	@apply inline-flex items-center gap-4;
+}
+
+.doctors-tab {
+	@apply text-base md:text-lg leading-none font-semibold text-[#7294af] bg-transparent border-0 pb-2;
+	border-bottom: 3px solid transparent;
+}
+
+.doctors-tab-active {
+	@apply text-[#1f3557];
+	border-bottom-color: #1f3557;
+}
+
+.doctors-controls {
+	@apply flex flex-wrap items-center gap-2;
+}
+
+.doctors-dept-select {
+	@apply h-[42px] min-w-[164px];
+}
+
+.doctors-status-btn {
+	@apply border border-[#9ec9da] rounded-[10px] bg-white text-[#2e4f72] text-[15px] leading-none py-2 px-[14px] shadow-[0_3px_8px_rgba(31,53,87,0.15)];
+}
+
+.doctors-status-btn-active {
+	@apply bg-[#3f5676] border-[#3f5676] text-white;
+}
+
+.doctors-add-btn {
+	@apply w-fit inline-flex items-center gap-2 py-[9px] px-[14px] rounded-xl border border-[#76bcc7] bg-white text-[#1f3557] text-[15px] leading-none font-semibold shadow-[0_3px_8px_rgba(31,53,87,0.15)];
+}
+
+.doctors-table-wrap {
+	@apply border border-[#9bb9cc] rounded-2xl bg-white overflow-hidden;
+}
+
+.doctors-table-top {
+	@apply py-3 px-[14px] text-[15px] md:text-base text-[#344f70] border-b border-[#c6d3de] font-semibold;
+}
+
+.doctors-table-scroll {
+	@apply overflow-x-auto;
+}
+
+.doctors-table {
+	@apply w-full min-w-[940px] border-collapse;
+}
+
+.doctors-table thead th {
+	@apply text-left py-[10px] px-[14px] border-b border-[#c6d3de] text-base text-[#263f62];
+}
+
+.doctors-table tbody td {
+	@apply py-[10px] px-[14px] border-b border-[#d6e1ea] align-top;
+}
+
+.doctors-table tbody tr:last-child td {
+	@apply border-b-0;
+}
+
+.doctors-cell-main {
+	@apply text-[15px] md:text-base text-[#2a4467] font-medium leading-[1.2];
+}
+
+.doctors-cell-sub {
+	@apply mt-0.5 text-sm text-[#6f93ad];
+}
+
+.doctors-actions-inline {
+	@apply flex items-center gap-[10px];
+}
+
+.doctors-action-icon {
+	@apply w-7 h-7 rounded-lg border border-[#c8d6e0] bg-white text-[#446486] inline-flex items-center justify-center;
+}
+
+.doctors-cards-grid {
+	@apply grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4;
+}
+
+.doctors-profile-card {
+	@apply rounded-2xl overflow-hidden border border-[#9bb9cc] bg-white shadow-[0_2px_8px_rgba(15,23,42,0.15)];
+}
+
+.doctors-profile-head {
+	@apply py-4 px-4 text-center text-white;
+	background: linear-gradient(180deg, #4da7b1 0%, #24535a 100%);
+}
+
+.doctors-avatar {
+	@apply w-12 h-12 mx-auto mb-2 rounded-full bg-[#99d7db] text-[#20545b] inline-flex items-center justify-center text-[22px] font-semibold;
+}
+
+.doctors-profile-name {
+	@apply m-0 text-base md:text-lg leading-tight font-semibold;
+}
+
+.doctors-profile-specialty {
+	@apply inline-flex mt-1 px-3 py-0.5 rounded-full bg-[#d9eef1] text-[#2f6572] text-xs font-medium;
+}
+
+.doctors-profile-body {
+	@apply px-4 py-3;
+}
+
+.doctors-profile-row {
+	@apply py-2 border-b border-[#cfdbe4] text-sm text-[#375a7c] flex items-center justify-between gap-3;
+}
+
+.doctors-profile-row:last-child {
+	@apply border-b-0;
+}

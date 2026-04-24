@@ -152,7 +152,7 @@ function Manage() {
 			<main className="manage-main">
 				<section className="manage-header-row">
 					<div>
-						<h2 className="manage-welcome">Welcome back, {userName || 'Juan'} <span aria-hidden="true">👋</span></h2>
+						<h2 className="manage-welcome">Welcome back, {userName || 'Juan'} <span aria-hidden="true"></span></h2>
 						<p className="manage-subtitle">Manage all system users, roles, and account status.</p>
 					</div>
 					<button type="button" className="manage-add-user-btn" onClick={() => setIsAddModalOpen(true)}>

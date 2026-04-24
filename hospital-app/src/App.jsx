@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import Manage from './pages/Manage';
+import Doctors from './pages/Doctors';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -18,7 +19,7 @@ function App() {
         <Route 
           path="/dashboard" 
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={['ADMIN', 'R001']}>
               <Dashboard />
             </ProtectedRoute>
           } 
@@ -27,17 +28,35 @@ function App() {
         <Route 
           path="/home" 
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={['ADMIN', 'R001']}>
               <Home />
             </ProtectedRoute>
           } 
         />
 
         <Route
+          path="/appointment"
+          element={
+            <ProtectedRoute allowedRoles={['ADMIN', 'R001']}>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/manage"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={['ADMIN', 'R001']}>
               <Manage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/doctors"
+          element={
+            <ProtectedRoute allowedRoles={['ADMIN', 'R001']}>
+              <Doctors />
             </ProtectedRoute>
           }
         />

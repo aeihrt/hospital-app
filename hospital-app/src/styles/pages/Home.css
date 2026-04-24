@@ -155,6 +155,10 @@
     @apply p-5 grid grid-cols-1 md:grid-cols-2 gap-4;
 }
 
+.home-add-error {
+    @apply md:col-span-2 text-sm text-rose-700 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2;
+}
+
 .home-add-field {
     @apply flex flex-col gap-2;
 }
@@ -194,4 +198,8 @@
 .home-add-submit {
     @apply px-6 py-2 rounded-2xl text-white shadow-sm;
     background-color: #415473;
+}
+
+.home-add-submit:disabled {
+    @apply opacity-70 cursor-not-allowed;
 }

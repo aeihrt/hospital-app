@@ -92,6 +92,15 @@ function Register() {
                         <div className="register-role-group">
                             <button
                                 type="button"
+                                onClick={() => setRole('ADMIN')}
+                                className={`register-role-btn ${
+                                    role === 'ADMIN' ? 'register-role-btn-active' : 'register-role-btn-inactive'
+                                }`}
+                            >
+                                Admin
+                            </button>
+                            <button
+                                type="button"
                                 onClick={() => setRole('PATIENT')}
                                 className={`register-role-btn ${
                                     role === 'PATIENT' ? 'register-role-btn-active' : 'register-role-btn-inactive'
@@ -176,7 +185,7 @@ function Register() {
                                 />
                             </div>
 
-                            {role === 'PATIENT' ? (
+                            {role === 'PATIENT' && (
                                 <div>
                                     <label className="register-field-label">Date of Birth</label>
                                     <input
@@ -186,7 +195,9 @@ function Register() {
                                         className="register-input"
                                     />
                                 </div>
-                            ) : (
+                            )}
+
+                            {role === 'DOCTOR' && (
                                 <div>
                                     <label className="register-field-label">Specialization</label>
                                     <input
