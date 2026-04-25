@@ -44,7 +44,8 @@ function Login() {
             localStorage.setItem('user_name', fullName);
 
             const isDoctor = userRole === 'R002' || userRole === 'DOCTOR';
-            navigate(isDoctor ? '/doctor/appointments' : '/home');
+            const isPatient = userRole === 'R003' || userRole === 'PATIENT';
+            navigate(isDoctor ? '/doctor/appointments' : isPatient ? '/patient/find-doctors' : '/home');
         } catch (error) {
             setError(error?.message || 'An error occurred during login');
         } finally {

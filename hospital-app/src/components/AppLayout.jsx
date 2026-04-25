@@ -9,6 +9,7 @@ import {
     Menu,
     CalendarCheck2,
     UserRound,
+    Users,
 } from 'lucide-react';
 import '../styles/components/AppLayout.css';
 import appLogo from '../assets/app-logo.png';
@@ -24,6 +25,12 @@ const DOCTOR_NAV_ITEMS = [
     { key: 'doctor-appointments', label: 'My Appointments', icon: CalendarCheck2, path: '/doctor/appointments' },
     { key: 'doctor-schedule', label: 'My Schedule', icon: CalendarDays, path: '/doctor/schedule' },
     { key: 'doctor-profile', label: 'My Profile', icon: UserRound, path: '/doctor/profile' },
+];
+
+const PATIENT_NAV_ITEMS = [
+    { key: 'patient-find-doctors', label: 'Find Doctors', icon: Users, path: '/patient/find-doctors' },
+    { key: 'patient-appointments', label: 'My Appointments', icon: CalendarCheck2, path: '/patient/appointments' },
+    { key: 'patient-profile', label: 'My Profile', icon: UserRound, path: '/patient/profile' },
 ];
 
 function AppLayout({ children, activePage, title, userName, onLogout }) {
@@ -42,7 +49,9 @@ function AppLayout({ children, activePage, title, userName, onLogout }) {
         };
         const role = roles[userRole] || 'User';
         const isDoctor = userRole === 'R002' || userRole === 'DOCTOR';
-        return { mappedRole: role, navItems: isDoctor ? DOCTOR_NAV_ITEMS : ADMIN_NAV_ITEMS };
+        const isPatient = userRole === 'R003' || userRole === 'PATIENT';
+        const navItems = isDoctor ? DOCTOR_NAV_ITEMS : isPatient ? PATIENT_NAV_ITEMS : ADMIN_NAV_ITEMS;
+        return { mappedRole: role, navItems };
     }, []);
 
     const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);

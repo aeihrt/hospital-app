@@ -9,6 +9,9 @@ import Doctors from './pages/Doctors';
 import DoctorAppointments from './pages/DoctorAppointments';
 import DoctorSchedule from './pages/DoctorSchedule';
 import DoctorProfile from './pages/DoctorProfile';
+import PatientFindDoctors from './pages/PatientFindDoctors';
+import PatientAppointments from './pages/PatientAppointments';
+import PatientProfile from './pages/PatientProfile';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -87,6 +90,33 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['DOCTOR', 'R002']}>
               <DoctorProfile />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/patient/find-doctors"
+          element={
+            <ProtectedRoute allowedRoles={['PATIENT', 'R003']}>
+              <PatientFindDoctors />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/patient/appointments"
+          element={
+            <ProtectedRoute allowedRoles={['PATIENT', 'R003']}>
+              <PatientAppointments />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/patient/profile"
+          element={
+            <ProtectedRoute allowedRoles={['PATIENT', 'R003']}>
+              <PatientProfile />
             </ProtectedRoute>
           }
         />
