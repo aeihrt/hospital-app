@@ -7,22 +7,30 @@ import {
     Stethoscope,
     CalendarDays,
     Menu,
+    CalendarCheck2,
+    UserRound,
 } from 'lucide-react';
 import '../styles/components/AppLayout.css';
 import appLogo from '../assets/app-logo.png';
 
-const NAV_ITEMS = [
+const ADMIN_NAV_ITEMS = [
     { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
     { key: 'manage', label: 'Manage', icon: ClipboardList, path: '/manage' },
     { key: 'doctors', label: 'Doctors', icon: Stethoscope, path: '/doctors' },
     { key: 'appointment', label: 'Appointment', icon: CalendarDays, path: '/home' },
 ];
 
+const DOCTOR_NAV_ITEMS = [
+    { key: 'doctor-appointments', label: 'My Appointments', icon: CalendarCheck2, path: '/doctor/appointments' },
+    { key: 'doctor-schedule', label: 'My Schedule', icon: CalendarDays, path: '/doctor/schedule' },
+    { key: 'doctor-profile', label: 'My Profile', icon: UserRound, path: '/doctor/profile' },
+];
+
 function AppLayout({ children, activePage, title, userName, onLogout }) {
     const navigate = useNavigate();
     const [isSidebarOpen, setIsSidebarOpen] = useState(() => window.innerWidth >= 768);
 
-    const mappedRole = useMemo(() => {
+    const { mappedRole, navItems } = useMemo(() => {
         const userRole = localStorage.getItem('user_role') || '';
         const roles = {
             R001: 'Admin',
@@ -32,8 +40,9 @@ function AppLayout({ children, activePage, title, userName, onLogout }) {
             DOCTOR: 'Doctor',
             PATIENT: 'Patient',
         };
-
-        return roles[userRole] || 'User';
+        const role = roles[userRole] || 'User';
+        const isDoctor = userRole === 'R002' || userRole === 'DOCTOR';
+        return { mappedRole: role, navItems: isDoctor ? DOCTOR_NAV_ITEMS : ADMIN_NAV_ITEMS };
     }, []);
 
     const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
@@ -76,7 +85,7 @@ function AppLayout({ children, activePage, title, userName, onLogout }) {
                 {/* Sidebar — no logo section, no X close button */}
                 <aside className={`app-sidebar${isSidebarOpen ? ' app-sidebar-open' : ''}`}>
                     <nav className="app-nav">
-                        {NAV_ITEMS.map(({ key, label, icon: Icon, path }) => (
+                        {navItems.map(({ key, label, icon: Icon, path }) => (
                             <button
                                 key={key}
                                 type="button"

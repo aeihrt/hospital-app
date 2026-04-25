@@ -1,0 +1,128 @@
+@reference "tailwindcss";
+
+.ds-loading {
+    @apply min-h-screen flex items-center justify-center bg-slate-100 text-slate-500;
+}
+
+.ds-main {
+    @apply p-4 md:p-5 xl:py-5 xl:px-[18px] grid gap-4;
+}
+
+.ds-title {
+    @apply text-xl md:text-2xl font-semibold text-[#203e63] leading-tight;
+}
+
+/* ── Two-column grid ────────────────────────────────── */
+.ds-grid {
+    @apply grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-4 items-start;
+}
+
+/* ── Day cards ──────────────────────────────────────── */
+.ds-days-col {
+    @apply grid gap-4;
+}
+
+.ds-day-card {
+    @apply bg-white border border-[#aebdcd] rounded-2xl p-4;
+}
+
+.ds-day-name {
+    @apply text-base font-semibold text-[#29486f] mb-3;
+}
+
+.ds-slots {
+    @apply grid gap-2;
+}
+
+.ds-slot-row {
+    @apply flex items-center gap-3;
+}
+
+.ds-slot-time {
+    @apply text-sm text-[#496987] w-20 shrink-0;
+}
+
+.ds-slot-bar {
+    @apply flex-1 h-3 rounded-full bg-slate-200;
+}
+
+.ds-slot-bar-taken {
+    background: linear-gradient(90deg, #54acb3 0%, #4ea8af 100%);
+}
+
+.ds-slot-status {
+    @apply text-xs font-medium w-12 text-right shrink-0;
+}
+
+.ds-slot-status-taken {
+    @apply text-[#3a6c85];
+}
+
+.ds-slot-status-open {
+    @apply text-[#94a3b8];
+}
+
+/* ── Right column ───────────────────────────────────── */
+.ds-right-col {
+    @apply grid gap-4;
+}
+
+/* ── Weekly Summary ─────────────────────────────────── */
+.ds-summary-card {
+    @apply bg-white border border-[#aebdcd] rounded-2xl overflow-hidden;
+}
+
+.ds-summary-title {
+    @apply text-base font-semibold text-[#29486f] px-4 py-3 border-b border-[#e2e8f0];
+}
+
+.ds-summary-rows {
+    @apply divide-y divide-[#f1f5f9];
+}
+
+.ds-summary-row {
+    @apply flex items-center justify-between px-4 py-3 text-sm text-[#334155];
+}
+
+.ds-summary-val {
+    @apply font-semibold text-[#1f3557];
+}
+
+/* ── Add Schedule form ──────────────────────────────── */
+.ds-add-card {
+    @apply bg-white border border-[#aebdcd] rounded-2xl p-4;
+}
+
+.ds-add-title {
+    @apply text-base font-semibold text-[#29486f] mb-4;
+}
+
+.ds-add-form {
+    @apply grid gap-3;
+}
+
+.ds-field {
+    @apply grid gap-1;
+}
+
+.ds-field-row {
+    @apply grid grid-cols-2 gap-3;
+}
+
+.ds-field-label {
+    @apply text-xs font-semibold text-[#496987];
+}
+
+.ds-input {
+    @apply w-full border border-[#aebdcd] rounded-xl px-3 py-2 text-sm text-[#334155]
+           bg-[#f8fafc] outline-none focus:border-[#54acb3] transition-colors;
+}
+
+.ds-save-msg {
+    @apply text-sm text-[#16a34a] font-medium;
+}
+
+.ds-save-btn {
+    @apply w-full py-2.5 rounded-xl bg-[#3a6c85] text-white text-sm font-semibold
+           hover:bg-[#2e5a70] transition-colors;
+}

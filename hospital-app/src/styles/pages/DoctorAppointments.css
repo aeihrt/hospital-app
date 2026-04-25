@@ -1,0 +1,150 @@
+@reference "tailwindcss";
+
+.da-loading {
+    @apply min-h-screen flex items-center justify-center bg-slate-100 text-slate-500;
+}
+
+.da-main {
+    @apply p-4 md:p-5 xl:py-5 xl:px-[18px] grid gap-4;
+}
+
+.da-title {
+    @apply text-xl md:text-2xl font-semibold text-[#203e63] leading-tight;
+}
+
+/* ── Stats ─────────────────────────────────────────── */
+.da-stats-row {
+    @apply grid grid-cols-1 sm:grid-cols-3 gap-3;
+}
+
+.da-stat-card {
+    @apply bg-white border border-[#aebdcd] rounded-2xl p-4 flex items-center gap-3;
+}
+
+.da-stat-icon {
+    @apply w-11 h-11 rounded-xl flex items-center justify-center shrink-0;
+}
+
+.da-stat-icon-blue {
+    @apply bg-[#dbeafe] text-[#2563eb];
+}
+
+.da-stat-icon-orange {
+    @apply bg-[#ffedd5] text-[#ea580c];
+}
+
+.da-stat-icon-green {
+    @apply bg-[#dcfce7] text-[#16a34a];
+}
+
+.da-stat-label {
+    @apply text-[11px] font-semibold tracking-wide text-[#7791a8] uppercase;
+}
+
+.da-stat-value {
+    @apply text-2xl font-bold text-[#1f3557] leading-tight;
+}
+
+/* ── Filter bar ─────────────────────────────────────── */
+.da-filter-bar {
+    @apply flex flex-col sm:flex-row items-stretch sm:items-center gap-3;
+}
+
+.da-search-wrap {
+    @apply flex items-center gap-2 bg-white border border-[#aebdcd] rounded-xl px-3 py-2 flex-1 max-w-sm;
+}
+
+.da-search-icon {
+    @apply text-[#7fa2bb] shrink-0;
+}
+
+.da-search-input {
+    @apply flex-1 border-0 bg-transparent text-[#496987] text-sm outline-none;
+}
+
+.da-search-input::placeholder {
+    @apply text-[#7fa2bb];
+}
+
+.da-filter-btns {
+    @apply flex flex-wrap gap-2;
+}
+
+.da-filter-btn {
+    @apply px-4 py-2 rounded-xl border border-[#aebdcd] bg-white text-sm text-[#496987]
+           hover:bg-slate-50 transition-colors;
+}
+
+.da-filter-btn-active {
+    @apply bg-[#3a6c85] text-white border-[#3a6c85];
+}
+
+/* ── Table ──────────────────────────────────────────── */
+.da-table-wrap {
+    @apply bg-white border border-[#aebdcd] rounded-2xl overflow-hidden;
+}
+
+.da-table-count {
+    @apply px-5 py-3 text-sm text-[#496987] border-b border-[#e2e8f0];
+}
+
+.da-table-scroll {
+    @apply overflow-x-auto;
+}
+
+.da-table {
+    @apply w-full text-sm text-[#334155] border-collapse;
+}
+
+.da-table thead tr {
+    @apply border-b border-[#e2e8f0];
+}
+
+.da-table th {
+    @apply px-5 py-3 text-left font-semibold text-[#29486f] whitespace-nowrap;
+}
+
+.da-table tbody tr {
+    @apply border-b border-[#f1f5f9] last:border-0;
+}
+
+.da-table td {
+    @apply px-5 py-4 align-middle;
+}
+
+.da-td-patient {
+    @apply font-semibold text-[#1f3557] whitespace-nowrap;
+}
+
+.da-td-date {
+    @apply whitespace-nowrap;
+}
+
+.da-td-date span {
+    @apply text-[#7791a8] text-xs;
+}
+
+.da-empty {
+    @apply text-center py-10 text-[#7791a8];
+}
+
+/* ── Status badges ──────────────────────────────────── */
+.da-badge {
+    @apply inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-semibold min-w-[76px];
+}
+
+.da-badge-booked {
+    @apply bg-[#dbeafe] text-[#1d4ed8];
+}
+
+.da-badge-completed {
+    @apply bg-[#dcfce7] text-[#15803d];
+}
+
+.da-badge-cancelled {
+    @apply bg-[#fee2e2] text-[#b91c1c];
+}
+
+.da-badge-upcoming {
+    @apply bg-[#ffedd5] text-[#c2410c];
+}

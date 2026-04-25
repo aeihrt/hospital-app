@@ -6,6 +6,9 @@ import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import Manage from './pages/Manage';
 import Doctors from './pages/Doctors';
+import DoctorAppointments from './pages/DoctorAppointments';
+import DoctorSchedule from './pages/DoctorSchedule';
+import DoctorProfile from './pages/DoctorProfile';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -57,6 +60,33 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={['ADMIN', 'R001']}>
               <Doctors />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/doctor/appointments"
+          element={
+            <ProtectedRoute allowedRoles={['DOCTOR', 'R002']}>
+              <DoctorAppointments />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/doctor/schedule"
+          element={
+            <ProtectedRoute allowedRoles={['DOCTOR', 'R002']}>
+              <DoctorSchedule />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/doctor/profile"
+          element={
+            <ProtectedRoute allowedRoles={['DOCTOR', 'R002']}>
+              <DoctorProfile />
             </ProtectedRoute>
           }
         />

@@ -38,10 +38,13 @@ function Login() {
             const lastName = result.user?.last_name || '';
             const fullName = `${firstName} ${lastName}`.trim() || 'User';
 
-            localStorage.setItem('user_role', result.user?.role_id || '');
+            const userRole = result.user?.role_id || '';
+            localStorage.setItem('user_role', userRole);
             localStorage.setItem('user_id', result.user?.user_id || '');
             localStorage.setItem('user_name', fullName);
-            navigate('/home');
+
+            const isDoctor = userRole === 'R002' || userRole === 'DOCTOR';
+            navigate(isDoctor ? '/doctor/appointments' : '/home');
         } catch (error) {
             setError(error?.message || 'An error occurred during login');
         } finally {
