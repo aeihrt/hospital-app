@@ -64,7 +64,7 @@
 }
 
 .login-role-btn {
-    @apply flex-1 py-2 px-2 md:px-4 rounded-full font-medium text-sm md:text-base transition-colors;
+    @apply flex-1 py-2 px-2 md:px-4 rounded-xl font-medium text-sm md:text-base transition-colors;
 }
 
 .login-role-btn-active {
@@ -117,7 +117,7 @@
 
 .login-submit-btn {
     background-color: #54ACB3;
-    @apply w-full text-white py-3 px-4 rounded-full font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply w-full text-white py-3 px-4 rounded-xl font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
 }
 
 .login-submit-btn:hover {

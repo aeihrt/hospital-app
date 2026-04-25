@@ -83,21 +83,21 @@ function Login() {
                             </button>
                             <button
                                 type="button"
-                                onClick={() => setRole('DOCTOR')}
-                                className={`login-role-btn ${
-                                    role === 'DOCTOR' ? 'login-role-btn-active' : 'login-role-btn-inactive'
-                                }`}
-                            >
-                                Doctor
-                            </button>
-                            <button
-                                type="button"
                                 onClick={() => setRole('PATIENT')}
                                 className={`login-role-btn ${
                                     role === 'PATIENT' ? 'login-role-btn-active' : 'login-role-btn-inactive'
                                 }`}
                             >
                                 Patient
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setRole('DOCTOR')}
+                                className={`login-role-btn ${
+                                    role === 'DOCTOR' ? 'login-role-btn-active' : 'login-role-btn-inactive'
+                                }`}
+                            >
+                                Doctor
                             </button>
                         </div>
 
