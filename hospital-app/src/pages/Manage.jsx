@@ -449,7 +449,8 @@ function Manage() {
 
 							<div className="manage-field">
 								<label htmlFor="password">Password</label>
-								<input id="password" name="password" type="password" placeholder="Min 8 chars, 1 uppercase, 1 number, 1 symbol" value={newUser.password} onChange={handleNewUserInput} required />
+								<input id="password" name="password" type="password" placeholder="Enter password" value={newUser.password} onChange={handleNewUserInput} required />
+								<p className="manage-field-hint">Min 8 chars &bull; 1 uppercase &bull; 1 number &bull; 1 symbol</p>
 							</div>
 
 							<div className="manage-field manage-field-full">
@@ -626,6 +627,7 @@ function Manage() {
 										{showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
 									</button>
 								</div>
+								<p className="manage-field-hint">Min 8 chars &bull; 1 uppercase &bull; 1 number &bull; 1 symbol</p>
 							</div>
 							<div className="manage-field manage-field-full">
 								<label htmlFor="confirm-password">Confirm Password</label>

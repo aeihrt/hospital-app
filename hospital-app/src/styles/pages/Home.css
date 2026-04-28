@@ -229,3 +229,31 @@
 .home-add-submit:disabled {
     @apply opacity-70 cursor-not-allowed;
 }
+
+.home-status-modal {
+    @apply max-w-[480px];
+}
+
+.home-status-modal-body {
+    @apply p-5 flex flex-col gap-3;
+}
+
+.home-status-modal-patient {
+    @apply text-[#1f3557] text-base;
+}
+
+.home-status-modal-date {
+    @apply text-sm text-[#5a7494];
+}
+
+.home-status-options {
+    @apply flex flex-wrap gap-2 mt-1;
+}
+
+.home-status-option {
+    @apply px-4 py-2 rounded-xl border border-[#9ec9da] bg-white text-[#2e4f72] text-sm;
+}
+
+.home-status-option-active {
+    @apply bg-[#3f5676] border-[#3f5676] text-white;
+}

@@ -161,6 +161,10 @@
     @apply text-base text-[#1f3557];
 }
 
+.manage-field-hint {
+    @apply text-xs text-[#6f93ad] mt-0.5;
+}
+
 .manage-field input,
 .manage-field select {
     @apply h-12 rounded-[14px] border border-[#61bbce] bg-[#eef4f9] px-[14px] text-sm text-[#375a7c] outline-none;

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     CalendarCheck,
@@ -7,7 +7,6 @@ import {
     CalendarX,
     Pencil,
     RefreshCcw,
-    KeyRound,
     Plus,
     X,
 } from 'lucide-react';
@@ -42,6 +41,15 @@ function Home() {
     const [addAppointmentError, setAddAppointmentError] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
     const [appointments, setAppointments] = useState([]);
+    const [editApptModal, setEditApptModal] = useState({ isOpen: false, appt: null });
+    const [editApptForm, setEditApptForm] = useState({ date: '', time: '', reason: '' });
+    const [editApptError, setEditApptError] = useState('');
+    const [isSavingAppt, setIsSavingAppt] = useState(false);
+
+    const [statusApptModal, setStatusApptModal] = useState({ isOpen: false, appt: null });
+    const [apptStatusValue, setApptStatusValue] = useState('BOOKED');
+    const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+
     const [newAppointment, setNewAppointment] = useState({
         patientName: '',
         doctor: '',
@@ -98,6 +106,97 @@ function Home() {
             setAppointments(result.appointments || []);
         } catch (error) {
             console.error('Error loading appointments:', error);
+        }
+    };
+
+    function parseDateToInput(dateStr) {
+        const d = new Date(dateStr);
+        return isNaN(d.getTime()) ? '' : d.toISOString().split('T')[0];
+    }
+
+    function parseTimeToInput(timeStr) {
+        const m = String(timeStr).match(/^(\d{1,2}):(\d{2})(am|pm)$/i);
+        if (!m) return '';
+        let h = parseInt(m[1], 10);
+        if (m[3].toLowerCase() === 'pm' && h < 12) h += 12;
+        if (m[3].toLowerCase() === 'am' && h === 12) h = 0;
+        return `${String(h).padStart(2, '0')}:${m[2]}`;
+    }
+
+    const openEditApptModal = (appt) => {
+        setEditApptForm({
+            date: parseDateToInput(appt.date),
+            time: parseTimeToInput(appt.time),
+            reason: appt.reason || '',
+        });
+        setEditApptError('');
+        setEditApptModal({ isOpen: true, appt });
+    };
+
+    const closeEditApptModal = () => {
+        setEditApptModal({ isOpen: false, appt: null });
+        setEditApptError('');
+    };
+
+    const handleEditApptInput = (event) => {
+        const { name, value } = event.target;
+        setEditApptForm((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleSaveAppt = async (event) => {
+        event.preventDefault();
+        setEditApptError('');
+        if (!editApptForm.date || !editApptForm.time) {
+            setEditApptError('Date and time are required.');
+            return;
+        }
+        try {
+            setIsSavingAppt(true);
+            const result = await postJson('update_appointment.php', {
+                action: 'edit',
+                appointmentId: editApptModal.appt.appointmentId,
+                date: editApptForm.date,
+                time: editApptForm.time,
+                reason: editApptForm.reason,
+            });
+            setAppointments((prev) => prev.map((a) =>
+                a.appointmentId === editApptModal.appt.appointmentId
+                    ? { ...a, date: result.date, time: result.time, reason: editApptForm.reason }
+                    : a,
+            ));
+            closeEditApptModal();
+        } catch (error) {
+            setEditApptError(error?.message || 'Failed to update appointment.');
+        } finally {
+            setIsSavingAppt(false);
+        }
+    };
+
+    const openStatusApptModal = (appt) => {
+        setApptStatusValue(appt.status);
+        setStatusApptModal({ isOpen: true, appt });
+    };
+
+    const closeStatusApptModal = () => setStatusApptModal({ isOpen: false, appt: null });
+
+    const handleUpdateApptStatus = async () => {
+        try {
+            setIsUpdatingStatus(true);
+            await postJson('update_appointment.php', {
+                action: 'update_status',
+                appointmentId: statusApptModal.appt.appointmentId,
+                status: apptStatusValue,
+            });
+            setAppointments((prev) => prev.map((a) =>
+                a.appointmentId === statusApptModal.appt.appointmentId
+                    ? { ...a, status: apptStatusValue }
+                    : a,
+            ));
+            closeStatusApptModal();
+        } catch (error) {
+            console.error('Failed to update status:', error);
+        } finally {
+            setIsUpdatingStatus(false);
         }
     };
 
@@ -287,14 +386,11 @@ function Home() {
                                         </td>
                                         <td>
                                             <div className="home-actions-inline">
-                                                <button type="button" className="home-action-icon" aria-label="Edit">
+                                                <button type="button" className="home-action-icon" aria-label="Edit appointment" onClick={() => openEditApptModal(row)}>
                                                     <Pencil size={15} />
                                                 </button>
-                                                <button type="button" className="home-action-icon" aria-label="Refresh">
+                                                <button type="button" className="home-action-icon" aria-label="Update status" onClick={() => openStatusApptModal(row)}>
                                                     <RefreshCcw size={15} />
-                                                </button>
-                                                <button type="button" className="home-action-icon" aria-label="Access">
-                                                    <KeyRound size={15} />
                                                 </button>
                                             </div>
                                         </td>
@@ -399,6 +495,96 @@ function Home() {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {editApptModal.isOpen && (
+                <div className="home-add-modal-overlay" onClick={closeEditApptModal}>
+                    <div className="home-add-modal" role="dialog" aria-modal="true" aria-label="Edit Appointment" onClick={(e) => e.stopPropagation()}>
+                        <div className="home-add-modal-head">
+                            <div className="home-add-modal-title-wrap">
+                                <Pencil size={24} />
+                                <h2>Edit Appointment</h2>
+                            </div>
+                            <button type="button" className="home-add-modal-close" onClick={closeEditApptModal} aria-label="Close">
+                                <X size={22} />
+                            </button>
+                        </div>
+                        <form className="home-add-modal-form" onSubmit={handleSaveAppt}>
+                            {editApptError && <p className="home-add-error">{editApptError}</p>}
+                            <div className="home-add-field home-add-field-full">
+                                <label>Patient</label>
+                                <input type="text" value={editApptModal.appt?.patientName || ''} readOnly />
+                            </div>
+                            <div className="home-add-field">
+                                <label>Doctor</label>
+                                <input type="text" value={editApptModal.appt?.doctor || ''} readOnly />
+                            </div>
+                            <div className="home-add-field">
+                                <label>Department</label>
+                                <input type="text" value={editApptModal.appt?.department || ''} readOnly />
+                            </div>
+                            <div className="home-add-field">
+                                <label htmlFor="appt-date">Date</label>
+                                <input id="appt-date" name="date" type="date" value={editApptForm.date} onChange={handleEditApptInput} required />
+                            </div>
+                            <div className="home-add-field">
+                                <label htmlFor="appt-time">Time</label>
+                                <input id="appt-time" name="time" type="time" value={editApptForm.time} onChange={handleEditApptInput} required />
+                            </div>
+                            <div className="home-add-field home-add-field-full">
+                                <label htmlFor="appt-reason">Notes / Reason</label>
+                                <textarea id="appt-reason" name="reason" rows={4} placeholder="Optional: clinical notes or special instructions" value={editApptForm.reason} onChange={handleEditApptInput} />
+                            </div>
+                            <div className="home-add-actions">
+                                <button type="button" className="home-add-cancel" onClick={closeEditApptModal}>Cancel</button>
+                                <button type="submit" className="home-add-submit" disabled={isSavingAppt}>{isSavingAppt ? 'Saving...' : 'Save Changes'}</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {statusApptModal.isOpen && (
+                <div className="home-add-modal-overlay" onClick={closeStatusApptModal}>
+                    <div className="home-add-modal home-status-modal" role="dialog" aria-modal="true" aria-label="Update Status" onClick={(e) => e.stopPropagation()}>
+                        <div className="home-add-modal-head">
+                            <div className="home-add-modal-title-wrap">
+                                <RefreshCcw size={24} />
+                                <h2>Update Status</h2>
+                            </div>
+                            <button type="button" className="home-add-modal-close" onClick={closeStatusApptModal} aria-label="Close">
+                                <X size={22} />
+                            </button>
+                        </div>
+                        <div className="home-status-modal-body">
+                            <p className="home-status-modal-patient"><strong>{statusApptModal.appt?.patientName}</strong> — {statusApptModal.appt?.doctor}</p>
+                            <p className="home-status-modal-date">{statusApptModal.appt?.date} at {statusApptModal.appt?.time}</p>
+                            <div className="home-status-options">
+                                {[
+                                    { value: 'BOOKED', label: 'Booked' },
+                                    { value: 'COMPLETED', label: 'Completed' },
+                                    { value: 'CANCELED', label: 'Canceled' },
+                                    { value: 'NO_SHOW', label: 'No-show' },
+                                ].map((opt) => (
+                                    <button
+                                        key={opt.value}
+                                        type="button"
+                                        className={`home-status-option ${apptStatusValue === opt.value ? 'home-status-option-active' : ''}`}
+                                        onClick={() => setApptStatusValue(opt.value)}
+                                    >
+                                        {opt.label}
+                                    </button>
+                                ))}
+                            </div>
+                            <div className="home-add-actions">
+                                <button type="button" className="home-add-cancel" onClick={closeStatusApptModal}>Cancel</button>
+                                <button type="button" className="home-add-submit" onClick={handleUpdateApptStatus} disabled={isUpdatingStatus}>
+                                    {isUpdatingStatus ? 'Updating...' : 'Confirm'}
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}
