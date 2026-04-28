@@ -77,9 +77,7 @@ function Register() {
                     <div className="register-icon-wrap">
                         <img src={appLogo} alt="App Logo" className="register-app-logo" />
                     </div>
-                    <h1 className="register-title">Hospital</h1>
-                    <h1 className="register-title">Appointment</h1>
-                    <h1 className="register-title-last">Management</h1>
+                    <h1 className="register-title">Doclick</h1>
                 </div>
             </div>
 

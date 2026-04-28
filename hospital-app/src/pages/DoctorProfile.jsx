@@ -3,13 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { ShieldCheck, Building2 } from 'lucide-react';
 import '../styles/pages/DoctorProfile.css';
 import AppLayout from '../components/AppLayout';
+import { getJson, postJson } from '../utils/api';
 
 const DEFAULT_PROFILE = {
     fullName: 'Dr. Michael Jones',
     specialty: 'Cardiology',
     yearsOfExperience: '15+ years',
-    academicBackground: 'School of Medicine',
-    licenseNo: 'LIC-2021-001',
     email: 'michael@hospital.com',
     phone: '09181234567',
     address: '123 Medical Plaza, West Wing, Suite 402, Metro City',
@@ -21,11 +20,11 @@ function DoctorProfile() {
     const [loading, setLoading] = useState(true);
     const [profile, setProfile] = useState(DEFAULT_PROFILE);
     const [formData, setFormData] = useState(DEFAULT_PROFILE);
+    const [doctorId, setDoctorId] = useState('');
     const [saveMsg, setSaveMsg] = useState('');
 
     const [settings, setSettings] = useState({
         emailNotification: true,
-        smsAlerts: false,
         twoFactor: false,
     });
 
@@ -34,7 +33,31 @@ function DoctorProfile() {
         if (!userId) { navigate('/login'); return; }
         const name = localStorage.getItem('user_name') || 'Doctor';
         setUserName(name);
-        setLoading(false);
+        // load doctor data from backend
+        (async () => {
+            try {
+                const res = await getJson('doctors.php');
+                const found = (res.doctors || []).find((d) => d.userId === userId);
+                if (found) {
+                    const loaded = {
+                        fullName: found.name || DEFAULT_PROFILE.fullName,
+                        specialty: found.specialty || DEFAULT_PROFILE.specialty,
+                        yearsOfExperience: DEFAULT_PROFILE.yearsOfExperience,
+                        email: found.email || DEFAULT_PROFILE.email,
+                        phone: found.phone || DEFAULT_PROFILE.phone,
+                        address: DEFAULT_PROFILE.address,
+                    };
+
+                    setProfile(loaded);
+                    setFormData(loaded);
+                    setDoctorId(found.doctorId || '');
+                }
+            } catch (err) {
+                // ignore and keep defaults
+            } finally {
+                setLoading(false);
+            }
+        })();
     }, [navigate]);
 
     const handleLogout = () => {
@@ -44,10 +67,30 @@ function DoctorProfile() {
         navigate('/login');
     };
 
-    const handleSave = (e) => {
+    const handleSave = async (e) => {
         e.preventDefault();
-        setProfile(formData);
-        setSaveMsg('Changes saved!');
+        setSaveMsg('');
+        try {
+            const payload = {
+                doctorId: doctorId || undefined,
+                name: formData.fullName,
+                department: formData.specialty,
+                room: '',
+                phone: formData.phone,
+                email: formData.email,
+                status: 'Active',
+            };
+            const res = await postJson('doctors.php', payload);
+            if (res.success) {
+                setProfile(formData);
+                setDoctorId(res.doctor?.doctorId || doctorId);
+                setSaveMsg('Changes saved!');
+            } else {
+                setSaveMsg('Save failed');
+            }
+        } catch (err) {
+            setSaveMsg('Save failed');
+        }
         setTimeout(() => setSaveMsg(''), 2500);
     };
 
@@ -85,14 +128,6 @@ function DoctorProfile() {
                             <div className="dp-info-item">
                                 <span className="dp-info-label">YEARS OF EXPERIENCE</span>
                                 <span className="dp-info-val">{profile.yearsOfExperience}</span>
-                            </div>
-                            <div className="dp-info-item">
-                                <span className="dp-info-label">ACADEMIC BACKGROUND</span>
-                                <span className="dp-info-val">{profile.academicBackground}</span>
-                            </div>
-                            <div className="dp-info-item">
-                                <span className="dp-info-label">LICENSE NO.</span>
-                                <span className="dp-info-val">{profile.licenseNo}</span>
                             </div>
                             <div className="dp-info-section-label">Personal Information</div>
                             <div className="dp-info-item">
@@ -146,26 +181,6 @@ function DoctorProfile() {
                                             className="dp-input"
                                             value={formData.yearsOfExperience}
                                             onChange={(e) => setFormData({ ...formData, yearsOfExperience: e.target.value })}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="dp-field-row">
-                                    <div className="dp-field">
-                                        <label className="dp-field-label">Academic Background</label>
-                                        <input
-                                            type="text"
-                                            className="dp-input"
-                                            value={formData.academicBackground}
-                                            onChange={(e) => setFormData({ ...formData, academicBackground: e.target.value })}
-                                        />
-                                    </div>
-                                    <div className="dp-field">
-                                        <label className="dp-field-label">License No.</label>
-                                        <input
-                                            type="text"
-                                            className="dp-input"
-                                            value={formData.licenseNo}
-                                            onChange={(e) => setFormData({ ...formData, licenseNo: e.target.value })}
                                         />
                                     </div>
                                 </div>
@@ -228,18 +243,6 @@ function DoctorProfile() {
                                         aria-checked={settings.emailNotification}
                                         className={`dp-toggle${settings.emailNotification ? ' dp-toggle-on' : ''}`}
                                         onClick={() => setSettings((s) => ({ ...s, emailNotification: !s.emailNotification }))}
-                                    >
-                                        <span className="dp-toggle-thumb" />
-                                    </button>
-                                </div>
-                                <div className="dp-settings-row">
-                                    <span className="dp-settings-label">SMS Alerts</span>
-                                    <button
-                                        type="button"
-                                        role="switch"
-                                        aria-checked={settings.smsAlerts}
-                                        className={`dp-toggle${settings.smsAlerts ? ' dp-toggle-on' : ''}`}
-                                        onClick={() => setSettings((s) => ({ ...s, smsAlerts: !s.smsAlerts }))}
                                     >
                                         <span className="dp-toggle-thumb" />
                                     </button>

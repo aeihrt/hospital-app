@@ -2,28 +2,30 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/pages/PatientProfile.css';
 import AppLayout from '../components/AppLayout';
+import { getJson, postJson } from '../utils/api';
 
 const DEFAULT_PROFILE = {
     fullName: 'Maria Reyes',
     email: 'maria@email.com',
-    dateOfBirth: 'January 15, 1990',
-    sex: 'Female',
+    dateOfBirth: '',
+    sex: '',
     phone: '09171234567',
-    address: 'Makati City, Metro Manila',
-    emergencyContact: 'Juan Reyes',
-    emergencyPhone: '09171234567',
+    address: '',
+    emergencyPhone: '',
 };
 
 function PatientProfile() {
     const navigate = useNavigate();
     const [userName, setUserName] = useState('');
+    const [userId, setUserId] = useState('');
     const [loading, setLoading] = useState(true);
     const [profile, setProfile] = useState(DEFAULT_PROFILE);
     const [formData, setFormData] = useState(DEFAULT_PROFILE);
     const [saveMsg, setSaveMsg] = useState('');
+    const [saveError, setSaveError] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
     const [settings, setSettings] = useState({
         emailNotification: true,
-        smsAlerts: false,
         twoFactor: false,
     });
 
@@ -32,7 +34,31 @@ function PatientProfile() {
         if (!userId) { navigate('/login'); return; }
         const name = localStorage.getItem('user_name') || 'Patient';
         setUserName(name);
-        setLoading(false);
+
+        setUserId(userId);
+
+        const loadProfile = async () => {
+            try {
+                const result = await getJson(`patient_profile.php?userId=${encodeURIComponent(userId)}`);
+                const nextProfile = {
+                    fullName: result.profile?.fullName || name,
+                    email: result.profile?.email || '',
+                    dateOfBirth: result.profile?.dateOfBirth || '',
+                    sex: result.profile?.sex || '',
+                    phone: result.profile?.phone || '',
+                    address: result.profile?.address || '',
+                    emergencyPhone: result.profile?.emergencyPhone || '',
+                };
+                setProfile(nextProfile);
+                setFormData(nextProfile);
+            } catch (error) {
+                console.error('Error loading patient profile:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadProfile();
     }, [navigate]);
 
     const handleLogout = () => {
@@ -44,9 +70,33 @@ function PatientProfile() {
 
     const handleSave = (e) => {
         e.preventDefault();
-        setProfile(formData);
-        setSaveMsg('Changes saved!');
-        setTimeout(() => setSaveMsg(''), 2500);
+        setSaveError('');
+
+        const saveProfile = async () => {
+            try {
+                setIsSaving(true);
+                const result = await postJson('patient_profile.php', {
+                    userId,
+                    fullName: formData.fullName,
+                    email: formData.email,
+                    phone: formData.phone,
+                    dateOfBirth: formData.dateOfBirth,
+                    sex: formData.sex,
+                    address: formData.address,
+                    emergencyPhone: formData.emergencyPhone,
+                });
+
+                setProfile(result.profile || formData);
+                setSaveMsg('Changes saved!');
+                setTimeout(() => setSaveMsg(''), 2500);
+            } catch (error) {
+                setSaveError(error?.message || 'Failed to save profile.');
+            } finally {
+                setIsSaving(false);
+            }
+        };
+
+        saveProfile();
     };
 
     const initials = profile.fullName
@@ -92,11 +142,7 @@ function PatientProfile() {
                                 <span className="pp-info-val">{profile.phone}</span>
                             </div>
                             <div className="pp-info-item">
-                                <span className="pp-info-label">EMERGENCY PERSON</span>
-                                <span className="pp-info-val">{profile.emergencyContact}</span>
-                            </div>
-                            <div className="pp-info-item">
-                                <span className="pp-info-label">EMERGENCY CONTACT</span>
+                                <span className="pp-info-label">EMERGENCY CONTACT NUMBER</span>
                                 <span className="pp-info-val">{profile.emergencyPhone}</span>
                             </div>
                         </div>
@@ -107,10 +153,11 @@ function PatientProfile() {
                         <section className="pp-edit-card">
                             <div className="pp-edit-header">
                                 <h3 className="pp-edit-title">Edit Profile</h3>
-                                <button type="submit" form="patient-profile-form" className="pp-save-btn">
-                                    {saveMsg || 'Save Changes'}
+                                <button type="submit" form="patient-profile-form" className="pp-save-btn" disabled={isSaving}>
+                                    {saveMsg || (isSaving ? 'Saving...' : 'Save Changes')}
                                 </button>
                             </div>
+                            {saveError && <p className="pp-save-error">{saveError}</p>}
                             <form id="patient-profile-form" className="pp-form" onSubmit={handleSave}>
                                 <div className="pp-field">
                                     <label className="pp-field-label">Full Name</label>
@@ -125,7 +172,7 @@ function PatientProfile() {
                                     <div className="pp-field">
                                         <label className="pp-field-label">Date of Birth</label>
                                         <input
-                                            type="text"
+                                            type="date"
                                             className="pp-input"
                                             value={formData.dateOfBirth}
                                             onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
@@ -161,25 +208,14 @@ function PatientProfile() {
                                         />
                                     </div>
                                 </div>
-                                <div className="pp-field-row">
-                                    <div className="pp-field">
-                                        <label className="pp-field-label">Emergency Contact</label>
-                                        <input
-                                            type="text"
-                                            className="pp-input"
-                                            value={formData.emergencyContact}
-                                            onChange={(e) => setFormData({ ...formData, emergencyContact: e.target.value })}
-                                        />
-                                    </div>
-                                    <div className="pp-field">
-                                        <label className="pp-field-label">Emergency Phone</label>
-                                        <input
-                                            type="tel"
-                                            className="pp-input"
-                                            value={formData.emergencyPhone}
-                                            onChange={(e) => setFormData({ ...formData, emergencyPhone: e.target.value })}
-                                        />
-                                    </div>
+                                <div className="pp-field">
+                                    <label className="pp-field-label">Emergency Contact Number</label>
+                                    <input
+                                        type="tel"
+                                        className="pp-input"
+                                        value={formData.emergencyPhone}
+                                        onChange={(e) => setFormData({ ...formData, emergencyPhone: e.target.value })}
+                                    />
                                 </div>
                                 <div className="pp-field">
                                     <label className="pp-field-label">Address</label>
@@ -196,12 +232,6 @@ function PatientProfile() {
                         <section className="pp-settings-card">
                             <h3 className="pp-settings-title">Account Settings</h3>
                             <div className="pp-settings-grid">
-                                <div className="pp-settings-row">
-                                    <span className="pp-settings-label">Academic Background</span>
-                                </div>
-                                <div className="pp-settings-row">
-                                    <span className="pp-settings-label">License No.</span>
-                                </div>
                                 <div className="pp-settings-row">
                                     <span className="pp-settings-label">Change Password</span>
                                     <button type="button" className="pp-settings-arrow">›</button>
@@ -226,18 +256,6 @@ function PatientProfile() {
                                         aria-checked={settings.twoFactor}
                                         className={`pp-toggle${settings.twoFactor ? ' pp-toggle-on' : ''}`}
                                         onClick={() => setSettings((s) => ({ ...s, twoFactor: !s.twoFactor }))}
-                                    >
-                                        <span className="pp-toggle-thumb" />
-                                    </button>
-                                </div>
-                                <div className="pp-settings-row">
-                                    <span className="pp-settings-label">SMS Alerts</span>
-                                    <button
-                                        type="button"
-                                        role="switch"
-                                        aria-checked={settings.smsAlerts}
-                                        className={`pp-toggle${settings.smsAlerts ? ' pp-toggle-on' : ''}`}
-                                        onClick={() => setSettings((s) => ({ ...s, smsAlerts: !s.smsAlerts }))}
                                     >
                                         <span className="pp-toggle-thumb" />
                                     </button>

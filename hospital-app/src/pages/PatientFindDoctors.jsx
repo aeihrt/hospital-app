@@ -1,19 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, ChevronDown } from 'lucide-react';
+import { Search } from 'lucide-react';
 import '../styles/pages/PatientFindDoctors.css';
 import AppLayout from '../components/AppLayout';
+import FilterDropdown from '../components/FilterDropdown';
+import { getJson, postJson } from '../utils/api';
 
-const DEPARTMENTS = ['All Departments', 'Cardiology', 'Neurology', 'Pediatrics', 'Orthopedics', 'Dermatology'];
-
-const DOCTORS = [
-    { id: 1, name: 'Dr. Michael Jones', specialty: 'Cardiology', room: 'Room 204', available: 'Mon | Wed | Fri', slot: '30 minutes' },
-    { id: 2, name: 'Dr. Sarah Lee', specialty: 'Neurology', room: 'Room 314', available: 'Tue | Thu', slot: '45 minutes' },
-    { id: 3, name: 'Dr. James Tan', specialty: 'Pediatrics', room: 'Room 104', available: 'Mon | Wed | Fri', slot: '30 minutes' },
-    { id: 4, name: 'Dr. Elena Reyes', specialty: 'Orthopedics', room: 'Room 415', available: 'Mon | Tue | Fri', slot: '60 minutes' },
-    { id: 5, name: 'Dr. Carlos Bautista', specialty: 'Dermatology', room: 'Room 210', available: 'Wed | Thu', slot: '30 minutes' },
-    { id: 6, name: 'Dr. Ana Santos', specialty: 'Cardiology', room: 'Room 208', available: 'Mon | Wed | Fri', slot: '30 minutes' },
-];
+const DEFAULT_DEPARTMENTS = ['All Departments', 'Cardiology', 'Neurology', 'Pediatrics', 'Orthopedics', 'Dermatology'];
 
 const EMPTY_FORM = { doctor: '', department: '', date: '', time: '', reason: '' };
 
@@ -24,19 +17,35 @@ function getInitials(name) {
 function PatientFindDoctors() {
     const navigate = useNavigate();
     const [userName, setUserName] = useState('');
+    const [userId, setUserId] = useState('');
     const [loading, setLoading] = useState(true);
+    const [doctors, setDoctors] = useState([]);
     const [selectedDept, setSelectedDept] = useState('All Departments');
     const [searchTerm, setSearchTerm] = useState('');
-    const [showDeptMenu, setShowDeptMenu] = useState(false);
     const [showBookModal, setShowBookModal] = useState(false);
     const [bookForm, setBookForm] = useState(EMPTY_FORM);
     const [bookMsg, setBookMsg] = useState('');
+    const [bookError, setBookError] = useState('');
+    const [isBooking, setIsBooking] = useState(false);
 
     useEffect(() => {
         const userId = localStorage.getItem('user_id');
         if (!userId) { navigate('/login'); return; }
         setUserName(localStorage.getItem('user_name') || 'Patient');
-        setLoading(false);
+        setUserId(userId);
+
+        const loadDoctors = async () => {
+            try {
+                const result = await getJson('doctors.php');
+                setDoctors((result.doctors || []).filter((doctor) => doctor.status === 'Active'));
+            } catch (error) {
+                console.error('Error loading doctors:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadDoctors();
     }, [navigate]);
 
     const handleLogout = () => {
@@ -47,7 +56,7 @@ function PatientFindDoctors() {
     };
 
     const filtered = useMemo(() => {
-        let list = DOCTORS;
+        let list = doctors;
         if (selectedDept !== 'All Departments') {
             list = list.filter((d) => d.specialty === selectedDept);
         }
@@ -58,11 +67,12 @@ function PatientFindDoctors() {
             );
         }
         return list;
-    }, [selectedDept, searchTerm]);
+    }, [selectedDept, searchTerm, doctors]);
 
     const openBook = (doc) => {
         setBookForm({ doctor: doc.name, department: doc.specialty, date: '', time: '', reason: '' });
         setBookMsg('');
+        setBookError('');
         setShowBookModal(true);
     };
 
@@ -70,12 +80,35 @@ function PatientFindDoctors() {
         setShowBookModal(false);
         setBookForm(EMPTY_FORM);
         setBookMsg('');
+        setBookError('');
     };
 
-    const handleBook = (e) => {
+    const handleBook = async (e) => {
         e.preventDefault();
-        setBookMsg('Appointment booked!');
-        setTimeout(() => closeBook(), 1500);
+
+        try {
+            setIsBooking(true);
+            setBookError('');
+
+            await postJson('appointments.php', {
+                patientName: userName,
+                patientUserId: userId,
+                doctor: bookForm.doctor,
+                department: bookForm.department,
+                date: bookForm.date,
+                time: bookForm.time,
+                notes: bookForm.reason,
+                createdBy: userId,
+                status: 'BOOKED',
+            });
+
+            setBookMsg('Appointment booked!');
+            setTimeout(() => closeBook(), 1500);
+        } catch (error) {
+            setBookError(error?.message || 'Failed to book appointment.');
+        } finally {
+            setIsBooking(false);
+        }
     };
 
     if (loading) return <div className="pfd-loading"><span>Loading...</span></div>;
@@ -87,36 +120,13 @@ function PatientFindDoctors() {
 
                 {/* Filters */}
                 <div className="pfd-filter-bar">
-                    <div className="pfd-dept-wrap">
-                        <button
-                            type="button"
-                            className="pfd-dept-btn"
-                            onClick={() => setShowDeptMenu((v) => !v)}
-                        >
-                            {selectedDept}
-                            <ChevronDown size={14} />
-                        </button>
-                        {showDeptMenu && (
-                            <>
-                                <div
-                                    className="pfd-dept-backdrop"
-                                    onClick={() => setShowDeptMenu(false)}
-                                />
-                                <div className="pfd-dept-menu">
-                                    {DEPARTMENTS.map((d) => (
-                                        <button
-                                            key={d}
-                                            type="button"
-                                            className={`pfd-dept-item${selectedDept === d ? ' pfd-dept-item-active' : ''}`}
-                                            onClick={() => { setSelectedDept(d); setShowDeptMenu(false); }}
-                                        >
-                                            {d}
-                                        </button>
-                                    ))}
-                                </div>
-                            </>
-                        )}
-                    </div>
+                    <FilterDropdown
+                        value={selectedDept}
+                        options={DEFAULT_DEPARTMENTS}
+                        onChange={setSelectedDept}
+                        ariaLabel="Select department"
+                        className="pfd-dept-wrap"
+                    />
 
                     <div className="pfd-search-wrap">
                         <Search size={15} className="pfd-search-icon" />
@@ -136,7 +146,7 @@ function PatientFindDoctors() {
                 ) : (
                     <div className="pfd-cards-grid">
                         {filtered.map((doc) => (
-                            <article key={doc.id} className="pfd-card">
+                            <article key={doc.doctorId} className="pfd-card">
                                 <div className="pfd-card-top">
                                     <div className="pfd-card-avatar">{getInitials(doc.name)}</div>
                                     <h3 className="pfd-card-name">{doc.name}</h3>
@@ -149,11 +159,15 @@ function PatientFindDoctors() {
                                     </div>
                                     <div className="pfd-card-row">
                                         <span className="pfd-card-row-label">Available</span>
-                                        <span className="pfd-card-row-val">{doc.available}</span>
+                                        <span className="pfd-card-row-val">
+                                            {(doc.schedules || []).length > 0
+                                                ? doc.schedules.map((schedule) => `${schedule.day} | ${schedule.time}`).join(' · ')
+                                                : 'Not set'}
+                                        </span>
                                     </div>
                                     <div className="pfd-card-row">
                                         <span className="pfd-card-row-label">Slot</span>
-                                        <span className="pfd-card-row-val">{doc.slot}</span>
+                                        <span className="pfd-card-row-val">{doc.slot ? `${doc.slot} minutes` : '30 minutes'}</span>
                                     </div>
                                     <button
                                         type="button"
@@ -174,6 +188,7 @@ function PatientFindDoctors() {
                 <div className="pfd-modal-backdrop" onClick={closeBook}>
                     <div className="pfd-modal" onClick={(e) => e.stopPropagation()}>
                         <h2 className="pfd-modal-title">Book Appointment</h2>
+                        {bookError && <p className="pfd-modal-error">{bookError}</p>}
                         <form className="pfd-modal-form" onSubmit={handleBook}>
                             <div className="pfd-modal-row">
                                 <div className="pfd-field">
@@ -235,7 +250,7 @@ function PatientFindDoctors() {
                                 <button type="button" className="pfd-modal-cancel-btn" onClick={closeBook}>
                                     Cancel
                                 </button>
-                                <button type="submit" className="pfd-modal-submit-btn">
+                                <button type="submit" className="pfd-modal-submit-btn" disabled={isBooking}>
                                     {bookMsg || 'Book Appointment'}
                                 </button>
                             </div>

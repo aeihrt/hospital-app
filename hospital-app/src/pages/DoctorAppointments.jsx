@@ -3,15 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { CalendarDays, ClipboardCheck, CheckCircle2, Search } from 'lucide-react';
 import '../styles/pages/DoctorAppointments.css';
 import AppLayout from '../components/AppLayout';
+import { getJson } from '../utils/api';
 
-const APPOINTMENTS = [
-    { id: 1, patient: 'Maria Reyes', date: 'March 9, 2026', time: '9:00am', endTime: '9:30 AM', reason: 'Chest Pain Follow-up', status: 'Booked', bookedBy: 'Admin' },
-    { id: 2, patient: 'Jose Cruz', date: 'March 9, 2026', time: '10:00am', endTime: '10:30 AM', reason: 'Headache Consultation', status: 'Completed', bookedBy: 'Patient' },
-    { id: 3, patient: 'Ana Lim', date: 'March 9, 2026', time: '11:00pm', endTime: '11:30 AM', reason: 'Annual Checkup', status: 'Cancelled', bookedBy: 'Admin' },
-    { id: 4, patient: 'Rosa Dela Cruz', date: 'March 12, 2026', time: '1:30pm', endTime: '2:00 PM', reason: 'Blood Pressure Check', status: 'Booked', bookedBy: 'Admin' },
-    { id: 5, patient: 'Rosa Dela Cruz', date: 'March 19, 2026', time: '1:30pm', endTime: '2:00 PM', reason: 'Blood Pressure Check', status: 'Booked', bookedBy: 'Admin' },
-    { id: 6, patient: 'Rosa Dela Cruz', date: 'March 26, 2026', time: '1:30pm', endTime: '2:00 PM', reason: 'Blood Pressure Check', status: 'Upcoming', bookedBy: 'Patient' },
-];
+// appointments will be loaded from backend
 
 const STATUS_BADGE = {
     Booked: 'da-badge-booked',
@@ -26,6 +20,7 @@ function DoctorAppointments() {
     const navigate = useNavigate();
     const [userName, setUserName] = useState('');
     const [loading, setLoading] = useState(true);
+    const [appointments, setAppointments] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [activeFilter, setActiveFilter] = useState('All');
 
@@ -33,7 +28,16 @@ function DoctorAppointments() {
         const userId = localStorage.getItem('user_id');
         if (!userId) { navigate('/login'); return; }
         setUserName(localStorage.getItem('user_name') || 'Doctor');
-        setLoading(false);
+        (async () => {
+            try {
+                const res = await getJson(`appointments.php?doctorUserId=${userId}`);
+                setAppointments(res.appointments || []);
+            } catch (err) {
+                // ignore
+            } finally {
+                setLoading(false);
+            }
+        })();
     }, [navigate]);
 
     const handleLogout = () => {
@@ -44,22 +48,22 @@ function DoctorAppointments() {
     };
 
     const filtered = useMemo(() => {
-        let list = APPOINTMENTS;
+        let list = appointments;
         if (activeFilter !== 'All') {
             list = list.filter((a) => a.status === activeFilter);
         }
         const q = searchTerm.trim().toLowerCase();
         if (q) {
             list = list.filter((a) =>
-                `${a.patient} ${a.reason} ${a.status} ${a.bookedBy}`.toLowerCase().includes(q)
+                `${a.patientName || a.patient} ${a.reason} ${a.status} ${a.bookedBy}`.toLowerCase().includes(q)
             );
         }
         return list;
     }, [activeFilter, searchTerm]);
 
-    const todayCount = APPOINTMENTS.filter((a) => a.date === 'March 9, 2026').length;
-    const upcomingCount = APPOINTMENTS.filter((a) => a.status === 'Upcoming' || a.status === 'Booked').length;
-    const completedCount = APPOINTMENTS.filter((a) => a.status === 'Completed').length;
+    const todayCount = appointments.filter((a) => a.date === (new Date()).toLocaleString('default', { month: 'long', day: 'numeric', year: 'numeric' })).length;
+    const upcomingCount = appointments.filter((a) => a.status === 'Upcoming' || a.status === 'Booked').length;
+    const completedCount = appointments.filter((a) => a.status === 'Completed').length;
 
     if (loading) return <div className="da-loading"><span>Loading...</span></div>;
 
@@ -138,8 +142,8 @@ function DoctorAppointments() {
                                     </tr>
                                 ) : (
                                     filtered.map((a) => (
-                                        <tr key={a.id}>
-                                            <td className="da-td-patient">{a.patient}</td>
+                                        <tr key={a.appointmentId || a.id}>
+                                            <td className="da-td-patient">{a.patientName}</td>
                                             <td className="da-td-date">{a.date}<br /><span>{a.time}</span></td>
                                             <td>{a.endTime}</td>
                                             <td>{a.reason}</td>

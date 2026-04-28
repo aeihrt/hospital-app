@@ -1,0 +1,38 @@
+@reference "tailwindcss";
+
+.filter-dropdown {
+    @apply relative inline-block min-w-[164px];
+}
+
+.filter-dropdown-trigger {
+    @apply w-full h-[42px] inline-flex items-center justify-between gap-3 rounded-xl border border-[#a8c4df] bg-white px-3 text-sm text-[#1f3557] shadow-[0_3px_8px_rgba(31,53,87,0.15)] transition-colors;
+}
+
+.filter-dropdown-trigger:hover {
+    background-color: #f8fbfe;
+}
+
+.filter-dropdown-trigger:focus-visible {
+    outline: 2px solid rgba(84, 172, 179, 0.35);
+    outline-offset: 2px;
+}
+
+.filter-dropdown-trigger-label {
+    @apply truncate text-left;
+}
+
+.filter-dropdown-menu {
+    @apply absolute left-0 top-[calc(100%+6px)] z-[70] w-full overflow-hidden rounded-2xl border border-[#d4e1ed] bg-white shadow-[0_14px_34px_rgba(31,53,87,0.18)];
+}
+
+.filter-dropdown-option {
+    @apply w-full border-0 bg-transparent px-4 py-[11px] text-left text-[15px] text-[#425472] transition-colors font-normal;
+}
+
+.filter-dropdown-option:hover {
+    background-color: #edf4fa;
+}
+
+.filter-dropdown-option-active {
+    @apply bg-[#f0f9fa] text-[#29867d] font-semibold;
+}

@@ -1,113 +1,58 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Plus, Users, CircleCheck, CircleX, Pencil, RefreshCcw, KeyRound, X } from 'lucide-react';
 import AppLayout from '../components/AppLayout';
+import FilterDropdown from '../components/FilterDropdown';
 import '../styles/pages/Doctors.css';
+import { getJson, postJson } from '../utils/api';
 
-const doctors = [
-	{
-		name: 'Maria Reyes',
-		email: 'maria.reyes@email.com',
-		userId: 'USR-0001',
-		day: 'Monday',
-		start: '8:00am',
-		end: '12:00pm',
-		slot: 30,
-		status: 'Active',
-		license: 'LIC-2021-001',
-		room: 'Room 24',
-		phone: '09181234567',
-		specialty: 'Cardiology',
-		schedules: [
-			{ day: 'Monday', time: '8:00 AM - 12:00 PM' },
-			{ day: 'Wednesday', time: '1:00 PM - 5:00 PM' },
-		],
-	},
-	{
-		name: 'Dr. Jose Santos',
-		email: 'jose.santos@hospital.com',
-		userId: 'USR-0002',
-		day: 'Wednesday',
-		start: '8:00am',
-		end: '12:00pm',
-		slot: 30,
-		status: 'Active',
-		license: 'LIC-2021-002',
-		room: 'Room 25',
-		phone: '09181234568',
-		specialty: 'Orthopedics',
-		schedules: [
-			{ day: 'Monday', time: '8:00 AM - 12:00 PM' },
-			{ day: 'Wednesday', time: '1:00 PM - 5:00 PM' },
-		],
-	},
-	{
-		name: 'Juan Dela Cruz',
-		email: 'juan.admin@hospital.com',
-		userId: 'USR-0003',
-		day: 'Tuesday',
-		start: '8:00am',
-		end: '12:00pm',
-		slot: 30,
-		status: 'Active',
-		license: 'LIC-2021-003',
-		room: 'Room 26',
-		phone: '09181234569',
-		specialty: 'Neurology',
-		schedules: [{ day: 'Tuesday', time: '8:00 AM - 12:00 PM' }],
-	},
-	{
-		name: 'Ana Lim',
-		email: 'ana.lim@email.com',
-		userId: 'USR-0004',
-		day: 'Thursday',
-		start: '8:00am',
-		end: '12:00pm',
-		slot: 30,
-		status: 'Inactive',
-		license: 'LIC-2021-004',
-		room: 'Room 27',
-		phone: '09181234570',
-		specialty: 'Dermatology',
-		schedules: [{ day: 'Thursday', time: '8:00 AM - 12:00 PM' }],
-	},
-	{
-		name: 'Pedro Bautista',
-		email: 'pedro.b@email.com',
-		userId: 'USR-0005',
-		day: 'Friday',
-		start: '8:00am',
-		end: '12:00pm',
-		slot: 30,
-		status: 'Active',
-		license: 'LIC-2021-005',
-		room: 'Room 28',
-		phone: '09181234571',
-		specialty: 'Pediatrics',
-		schedules: [{ day: 'Friday', time: '8:00 AM - 12:00 PM' }],
-	},
-];
+const EMPTY_DOCTOR_FORM = {
+	doctorId: '',
+	name: '',
+	license: '',
+	department: '',
+	room: '',
+	phone: '',
+	email: '',
+	status: 'Active',
+};
 
 function Doctors() {
 	const [activeTab, setActiveTab] = useState('list');
 	const [statusFilter, setStatusFilter] = useState('All');
+	const [departmentFilter, setDepartmentFilter] = useState('All Departments');
+	const [doctors, setDoctors] = useState([]);
 	const [selectedDoctor, setSelectedDoctor] = useState(null);
 	const [isViewOpen, setIsViewOpen] = useState(false);
 	const [isFormOpen, setIsFormOpen] = useState(false);
-	const [doctorForm, setDoctorForm] = useState({
-		name: '',
-		license: '',
-		department: '',
-		room: '',
-		phone: '',
-		email: '',
-		status: 'Active',
-	});
+	const [doctorForm, setDoctorForm] = useState(EMPTY_DOCTOR_FORM);
+	const [loading, setLoading] = useState(true);
+	const [isSavingDoctor, setIsSavingDoctor] = useState(false);
+	const [formError, setFormError] = useState('');
 	const userName = localStorage.getItem('user_name') || 'Juan';
 
+	useEffect(() => {
+		loadDoctors();
+	}, []);
+
+	const loadDoctors = async () => {
+		try {
+			setLoading(true);
+			const result = await getJson('doctors.php');
+			setDoctors(result.doctors || []);
+		} catch (error) {
+			console.error('Error loading doctors:', error);
+		} finally {
+			setLoading(false);
+		}
+	};
+
 	const filteredDoctors = useMemo(() => {
-		if (statusFilter === 'All') return doctors;
-		return doctors.filter((doctor) => doctor.status === statusFilter);
-	}, [statusFilter]);
+		return doctors.filter((doctor) => {
+			const matchStatus = statusFilter === 'All' || doctor.status === statusFilter;
+			const matchDepartment = departmentFilter === 'All Departments' || doctor.specialty === departmentFilter;
+			return matchStatus && matchDepartment;
+		});
+	}, [statusFilter, departmentFilter, doctors]);
 
 	const totalDoctors = doctors.length;
 	const activeDoctors = doctors.filter((doctor) => doctor.status === 'Active').length;
@@ -122,6 +67,7 @@ function Doctors() {
 		if (doctor) {
 			setSelectedDoctor(doctor);
 			setDoctorForm({
+				doctorId: doctor.doctorId || '',
 				name: doctor.name,
 				license: doctor.license,
 				department: doctor.specialty,
@@ -132,21 +78,17 @@ function Doctors() {
 			});
 		} else {
 			setSelectedDoctor(null);
-			setDoctorForm({
-				name: '',
-				license: '',
-				department: '',
-				room: '',
-				phone: '',
-				email: '',
-				status: 'Active',
-			});
+			setDoctorForm(EMPTY_DOCTOR_FORM);
 		}
 
+		setFormError('');
 		setIsFormOpen(true);
 	};
 
-	const closeForm = () => setIsFormOpen(false);
+	const closeForm = () => {
+		setIsFormOpen(false);
+		setFormError('');
+	};
 	const closeView = () => setIsViewOpen(false);
 
 	const handleFormChange = (event) => {
@@ -154,9 +96,60 @@ function Doctors() {
 		setDoctorForm((prev) => ({ ...prev, [name]: value }));
 	};
 
-	const handleFormSubmit = (event) => {
+	const handleFormSubmit = async (event) => {
 		event.preventDefault();
-		setIsFormOpen(false);
+
+		if (!doctorForm.name.trim() || !doctorForm.department.trim() || !doctorForm.phone.trim() || !doctorForm.email.trim()) {
+			setFormError('Please fill in the required fields.');
+			return;
+		}
+
+		try {
+			setIsSavingDoctor(true);
+			const result = await postJson('doctors.php', {
+				doctorId: doctorForm.doctorId,
+				name: doctorForm.name.trim(),
+				license: doctorForm.license.trim(),
+				department: doctorForm.department.trim(),
+				room: doctorForm.room.trim(),
+				phone: doctorForm.phone.trim(),
+				email: doctorForm.email.trim().toLowerCase(),
+				status: doctorForm.status,
+			});
+
+			const savedDoctor = result.doctor || {
+				doctorId: doctorForm.doctorId || `${Date.now()}`,
+				name: doctorForm.name.trim(),
+				license: doctorForm.license.trim(),
+				specialty: doctorForm.department.trim(),
+				room: doctorForm.room.trim(),
+				phone: doctorForm.phone.trim(),
+				email: doctorForm.email.trim().toLowerCase(),
+				status: doctorForm.status,
+				day: doctorForm.day || 'N/A',
+				start: doctorForm.start || 'N/A',
+				end: doctorForm.end || 'N/A',
+				slot: doctorForm.slot || 30,
+				schedules: doctorForm.schedules || [],
+			};
+
+			setDoctors((previous) => {
+				const filtered = previous.filter((doctor) => doctor.doctorId !== savedDoctor.doctorId);
+				return [
+					{
+						...selectedDoctor,
+						...savedDoctor,
+					},
+					...filtered,
+				];
+			});
+
+			closeForm();
+		} catch (error) {
+			setFormError(error?.message || 'Failed to save doctor.');
+		} finally {
+			setIsSavingDoctor(false);
+		}
 	};
 
 	const handleLogout = () => {
@@ -212,14 +205,13 @@ function Doctors() {
 					</div>
 
 					<div className="doctors-controls">
-						<select className="select-dark doctors-dept-select" defaultValue="All Departments">
-							<option>All Departments</option>
-							<option>Cardiology</option>
-							<option>Neurology</option>
-							<option>Pediatrics</option>
-							<option>Orthopedics</option>
-							<option>Dermatology</option>
-						</select>
+						<FilterDropdown
+							value={departmentFilter}
+							options={['All Departments', 'Cardiology', 'Neurology', 'Pediatrics', 'Orthopedics', 'Dermatology']}
+							onChange={setDepartmentFilter}
+							ariaLabel="Select department"
+							className="doctors-dept-select"
+						/>
 
 						{['All', 'Inactive', 'Active'].map((status) => (
 							<button

@@ -9,61 +9,59 @@ import {
 } from 'lucide-react';
 import '../styles/pages/Dashboard.css';
 import AppLayout from '../components/AppLayout';
+import { getJson } from '../utils/api';
 
 function Dashboard() {
 	const navigate = useNavigate();
 	const [userName, setUserName] = useState('');
-	const [userRole, setUserRole] = useState('');
 	const [loading, setLoading] = useState(true);
 	const [searchTerm, setSearchTerm] = useState('');
+	const [summary, setSummary] = useState({
+		totalUsers: 0,
+		totalDoctors: 0,
+		totalPatients: 0,
+		totalAppointments: 0,
+	});
+	const [statusCounts, setStatusCounts] = useState({});
+	const [recentAppointments, setRecentAppointments] = useState([]);
 
-	const mappedRole = useMemo(() => {
-		const roles = {
-			R001: 'Admin',
-			R002: 'Doctor',
-			R003: 'Patient',
-			ADMIN: 'Admin',
-			DOCTOR: 'Doctor',
-			PATIENT: 'Patient',
-		};
+	const statusData = useMemo(() => {
+		const statusRows = [
+			{ key: 'BOOKED', label: 'Booked', className: 'dashboard-status-booked' },
+			{ key: 'COMPLETED', label: 'Completed', className: 'dashboard-status-completed' },
+			{ key: 'CANCELED', label: 'Canceled', className: 'dashboard-status-canceled' },
+			{ key: 'NO_SHOW', label: 'No-show', className: 'dashboard-status-noshow' },
+		];
+		const maxCount = Math.max(...statusRows.map(({ key }) => statusCounts[key] || 0), 0);
 
-		return roles[userRole] || 'User';
-	}, [userRole]);
-
-	const upcomingAppointments = [
-		{ patient: 'Maria Reyes', doctor: 'Dr. Jones', department: 'Cardiology', day: 'Today', time: '9:00am' },
-		{ patient: 'Jose Cruz', doctor: 'Dr. Lee', department: 'Neurology', day: 'Today', time: '10:30am' },
-		{ patient: 'Ana Lim', doctor: 'Dr. Garcia', department: 'Pediatrics', day: 'Tomorrow', time: '2:00pm' },
-		{ patient: 'Pedro Bautista', doctor: 'Dr. Garcia', department: 'Cardiology', day: 'Tomorrow', time: '2:00pm' },
-	];
-
-	const statusData = [
-		{ label: 'Booked', count: 52, width: '58%', className: 'dashboard-status-booked' },
-		{ label: 'Completed', count: 21, width: '33%', className: 'dashboard-status-completed' },
-		{ label: 'Canceled', count: 9, width: '18%', className: 'dashboard-status-canceled' },
-		{ label: 'No-show', count: 5, width: '11%', className: 'dashboard-status-noshow' },
-	];
+		return statusRows.map(({ key, label, className }) => ({
+			label,
+			count: statusCounts[key] || 0,
+			className,
+			width: maxCount > 0 ? `${Math.max(8, Math.round(((statusCounts[key] || 0) / maxCount) * 100))}%` : '0%',
+		}));
+	}, [statusCounts]);
 
 	const filteredUpcomingAppointments = useMemo(() => {
 		const normalizedSearch = searchTerm.trim().toLowerCase();
 
 		if (!normalizedSearch) {
-			return upcomingAppointments;
+			return recentAppointments;
 		}
 
-		return upcomingAppointments.filter((appointment) => {
+		return recentAppointments.filter((appointment) => {
 			const searchableText = `${appointment.patient} ${appointment.doctor} ${appointment.department} ${appointment.day} ${appointment.time}`
 				.toLowerCase();
 
 			return searchableText.includes(normalizedSearch);
 		});
-	}, [searchTerm, upcomingAppointments]);
+	}, [searchTerm, recentAppointments]);
 
 	useEffect(() => {
-		loadUserData();
+		loadDashboard();
 	}, []);
 
-	const loadUserData = async () => {
+	const loadDashboard = async () => {
 		try {
 			const userId = localStorage.getItem('user_id');
 			if (!userId) {
@@ -72,7 +70,11 @@ function Dashboard() {
 			}
 
 			setUserName(localStorage.getItem('user_name') || 'Juan');
-			setUserRole(localStorage.getItem('user_role') || 'ADMIN');
+
+			const result = await getJson('dashboard.php');
+			setSummary(result.summary || {});
+			setStatusCounts(result.statusCounts || {});
+			setRecentAppointments(result.recentAppointments || []);
 		} catch (error) {
 			console.error('Error loading user data:', error);
 		} finally {
@@ -125,19 +127,19 @@ function Dashboard() {
 				<section className="dashboard-stats-grid">
 					<article className="dashboard-stat-card">
 						<div className="dashboard-stat-icon"><Users size={20} /></div>
-						<div><p className="dashboard-stat-value">128</p><p className="dashboard-stat-label">Total Users</p></div>
+						<div><p className="dashboard-stat-value">{summary.totalUsers}</p><p className="dashboard-stat-label">Total Users</p></div>
 					</article>
 					<article className="dashboard-stat-card">
 						<div className="dashboard-stat-icon"><UserRoundCog size={20} /></div>
-						<div><p className="dashboard-stat-value">24</p><p className="dashboard-stat-label">Total Doctors</p></div>
+						<div><p className="dashboard-stat-value">{summary.totalDoctors}</p><p className="dashboard-stat-label">Total Doctors</p></div>
 					</article>
 					<article className="dashboard-stat-card">
 						<div className="dashboard-stat-icon"><UserRound size={20} /></div>
-						<div><p className="dashboard-stat-value">340</p><p className="dashboard-stat-label">Total Patients</p></div>
+						<div><p className="dashboard-stat-value">{summary.totalPatients}</p><p className="dashboard-stat-label">Total Patients</p></div>
 					</article>
 					<article className="dashboard-stat-card dashboard-stat-card-last">
 						<div className="dashboard-stat-icon dashboard-stat-icon-muted"><CalendarCheck2 size={20} /></div>
-						<div><p className="dashboard-stat-value">128</p><p className="dashboard-stat-label">Total Appointments</p></div>
+						<div><p className="dashboard-stat-value">{summary.totalAppointments}</p><p className="dashboard-stat-label">Total Appointments</p></div>
 					</article>
 				</section>
 
@@ -149,7 +151,7 @@ function Dashboard() {
 						</div>
 						<div className="dashboard-appointments-list">
 							{filteredUpcomingAppointments.map((appointment) => (
-								<div key={`${appointment.patient}-${appointment.time}`} className="dashboard-appointment-item">
+								<div key={`${appointment.appointmentId}-${appointment.time}`} className="dashboard-appointment-item">
 									<div>
 										<p className="dashboard-appointment-name">{appointment.patient}</p>
 										<p className="dashboard-appointment-meta">{appointment.doctor} - {appointment.department}</p>

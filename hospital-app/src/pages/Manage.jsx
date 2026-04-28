@@ -10,26 +10,21 @@ import {
 } from 'lucide-react';
 import '../styles/pages/Manage.css';
 import AppLayout from '../components/AppLayout';
+import FilterDropdown from '../components/FilterDropdown';
+import { getJson, postJson } from '../utils/api';
 
 function Manage() {
 	const navigate = useNavigate();
 	const [userName, setUserName] = useState('');
-	const [userRole, setUserRole] = useState('');
 	const [loading, setLoading] = useState(true);
+	const [isUsersLoading, setIsUsersLoading] = useState(false);
 	const [searchTerm, setSearchTerm] = useState('');
 	const [selectedRole, setSelectedRole] = useState('All Roles');
 	const [selectedStatus, setSelectedStatus] = useState('All');
 	const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-	const [users, setUsers] = useState([
-		{ fullName: 'Maria Reyes', email: 'maria.reyes@email.com', phone: '09171234567', role: 'Patient', status: 'Active', createdAt: 'Mar 1, 2026' },
-		{ fullName: 'Dr. Jose Santos', email: 'jose.santos@hospital.com', phone: '09181234567', role: 'Doctor', status: 'Active', createdAt: 'Feb 15, 2026' },
-		{ fullName: 'Juan Dela Cruz', email: 'juan.admin@hospital.com', phone: '09171234567', role: 'Admin', status: 'Active', createdAt: 'Jan 10, 2026' },
-		{ fullName: 'Ana Lim', email: 'ana.lim@email.com', phone: '09171234567', role: 'Patient', status: 'Inactive', createdAt: 'Feb 20, 2026' },
-		{ fullName: 'Pedro Bautista', email: 'pedro.b@email.com', phone: '09171234567', role: 'Patient', status: 'Active', createdAt: 'Mar 5, 2026' },
-		{ fullName: 'Dr. David Lee', email: 'david.l@hospital.com', phone: '09221234567', role: 'Doctor', status: 'Active', createdAt: 'Jan 22, 2026' },
-		{ fullName: 'Carlo Cruz', email: 'carlo.c@email.com', phone: '09231234567', role: 'Patient', status: 'Inactive', createdAt: 'Mar 8, 2026' },
-		{ fullName: 'Dr. Maria Garcia', email: 'maria.g@hospital.com', phone: '09241234567', role: 'Doctor', status: 'Active', createdAt: 'Feb 1, 2026' },
-	]);
+	const [users, setUsers] = useState([]);
+	const [formError, setFormError] = useState('');
+	const [isSavingUser, setIsSavingUser] = useState(false);
 	const [newUser, setNewUser] = useState({
 		firstName: '',
 		lastName: '',
@@ -38,19 +33,9 @@ function Manage() {
 		password: '',
 		role: '',
 		status: 'Active',
+		dateOfBirth: '',
+		specialization: '',
 	});
-
-	const mappedRole = useMemo(() => {
-		const roles = {
-			R001: 'Admin',
-			R002: 'Doctor',
-			R003: 'Patient',
-			ADMIN: 'Admin',
-			DOCTOR: 'Doctor',
-			PATIENT: 'Patient',
-		};
-		return roles[userRole] || 'User';
-	}, [userRole]);
 
 	const filteredUsers = useMemo(() => {
 		return users.filter((user) => {
@@ -66,6 +51,7 @@ function Manage() {
 
 	useEffect(() => {
 		loadUserData();
+		loadUsers();
 	}, []);
 
 	const loadUserData = async () => {
@@ -77,11 +63,22 @@ function Manage() {
 			}
 
 			setUserName(localStorage.getItem('user_name') || 'Juan');
-			setUserRole(localStorage.getItem('user_role') || 'ADMIN');
 		} catch (error) {
 			console.error('Error loading user data:', error);
 		} finally {
 			setLoading(false);
+		}
+	};
+
+	const loadUsers = async () => {
+		try {
+			setIsUsersLoading(true);
+			const result = await getJson('users.php');
+			setUsers(result.users || []);
+		} catch (error) {
+			console.error('Error loading users:', error);
+		} finally {
+			setIsUsersLoading(false);
 		}
 	};
 
@@ -94,6 +91,7 @@ function Manage() {
 
 	const closeAddModal = () => {
 		setIsAddModalOpen(false);
+		setFormError('');
 		setNewUser({
 			firstName: '',
 			lastName: '',
@@ -102,6 +100,8 @@ function Manage() {
 			password: '',
 			role: '',
 			status: 'Active',
+			dateOfBirth: '',
+			specialization: '',
 		});
 	};
 
@@ -110,33 +110,63 @@ function Manage() {
 		setNewUser((previous) => ({ ...previous, [name]: value }));
 	};
 
-	const handleSaveUser = (event) => {
+	const handleSaveUser = async (event) => {
 		event.preventDefault();
+		setFormError('');
 
 		const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'password', 'role', 'status'];
 		const hasAllValues = requiredFields.every((field) => newUser[field]?.trim());
 
 		if (!hasAllValues) {
+			setFormError('Please fill in all required fields.');
 			return;
 		}
 
-		const today = new Date().toLocaleDateString('en-US', {
-			month: 'short',
-			day: 'numeric',
-			year: 'numeric',
-		});
+		if (newUser.role === 'Patient' && !newUser.dateOfBirth.trim()) {
+			setFormError('Date of birth is required for patients.');
+			return;
+		}
 
-		const addedUser = {
-			fullName: `${newUser.firstName.trim()} ${newUser.lastName.trim()}`,
-			email: newUser.email.trim().toLowerCase(),
-			phone: newUser.phone.trim(),
-			role: newUser.role,
-			status: newUser.status,
-			createdAt: today,
-		};
+		if (newUser.role === 'Doctor' && !newUser.specialization.trim()) {
+			setFormError('Specialization is required for doctors.');
+			return;
+		}
 
-		setUsers((previous) => [addedUser, ...previous]);
-		closeAddModal();
+		try {
+			setIsSavingUser(true);
+			const result = await postJson('register.php', {
+				fullName: `${newUser.firstName.trim()} ${newUser.lastName.trim()}`,
+				email: newUser.email.trim().toLowerCase(),
+				phone: newUser.phone.trim(),
+				password: newUser.password,
+				role: newUser.role.toUpperCase(),
+				status: newUser.status,
+				dateOfBirth: newUser.dateOfBirth,
+				specialization: newUser.specialization,
+			});
+
+			setUsers((previous) => [
+				{
+					fullName: `${result.user?.first_name || newUser.firstName} ${result.user?.last_name || newUser.lastName}`.trim(),
+					email: result.user?.email || newUser.email.trim().toLowerCase(),
+					phone: newUser.phone.trim(),
+					role: newUser.role,
+					status: result.user?.status || newUser.status,
+					createdAt: new Date().toLocaleDateString('en-US', {
+						month: 'short',
+						day: 'numeric',
+						year: 'numeric',
+					}),
+				},
+				...previous,
+			]);
+			closeAddModal();
+		} catch (error) {
+			setFormError(error?.message || 'Failed to save user.');
+		} finally {
+			setIsSavingUser(false);
+		}
+
 	};
 
 	if (loading) {
@@ -171,12 +201,13 @@ function Manage() {
 							onChange={(event) => setSearchTerm(event.target.value)}
 						/>
 					</div>
-					<select className="manage-role-select select-dark" value={selectedRole} onChange={(event) => setSelectedRole(event.target.value)}>
-						<option>All Roles</option>
-						<option>Admin</option>
-						<option>Doctor</option>
-						<option>Patient</option>
-					</select>
+					<FilterDropdown
+						value={selectedRole}
+						options={['All Roles', 'Admin', 'Doctor', 'Patient']}
+						onChange={setSelectedRole}
+						ariaLabel="Select user role"
+						className="manage-role-select"
+					/>
 					<div className="manage-status-filter">
 						{['All', 'Inactive', 'Active'].map((status) => (
 							<button
@@ -192,7 +223,7 @@ function Manage() {
 				</section>
 
 				<section className="manage-table-wrap">
-					<div className="manage-table-top">Showing {filteredUsers.length} of {users.length} users</div>
+					<div className="manage-table-top">Showing {filteredUsers.length} of {users.length} users {isUsersLoading ? '(refreshing...)' : ''}</div>
 					<div className="manage-table-scroll">
 						<table className="manage-table">
 							<thead>
@@ -256,6 +287,8 @@ function Manage() {
 						</div>
 
 						<form className="manage-modal-form" onSubmit={handleSaveUser}>
+							{formError && <p className="manage-form-error">{formError}</p>}
+
 							<div className="manage-field">
 								<label htmlFor="firstName">First Name</label>
 								<input id="firstName" name="firstName" type="text" placeholder="e.g. Maria" value={newUser.firstName} onChange={handleNewUserInput} required />
@@ -299,9 +332,23 @@ function Manage() {
 								</select>
 							</div>
 
+							{newUser.role === 'Patient' && (
+								<div className="manage-field manage-field-full">
+									<label htmlFor="dateOfBirth">Date of Birth</label>
+									<input id="dateOfBirth" name="dateOfBirth" type="date" value={newUser.dateOfBirth} onChange={handleNewUserInput} required={newUser.role === 'Patient'} />
+								</div>
+							)}
+
+							{newUser.role === 'Doctor' && (
+								<div className="manage-field manage-field-full">
+									<label htmlFor="specialization">Specialization</label>
+									<input id="specialization" name="specialization" type="text" placeholder="e.g. Cardiology" value={newUser.specialization} onChange={handleNewUserInput} required={newUser.role === 'Doctor'} />
+								</div>
+							)}
+
 							<div className="md:col-span-2 mt-2 flex justify-end gap-4">
 								<button type="button" className="manage-cancel-btn" onClick={closeAddModal}>Cancel</button>
-								<button type="submit" className="manage-save-btn">Save User</button>
+								<button type="submit" className="manage-save-btn" disabled={isSavingUser}>{isSavingUser ? 'Saving...' : 'Save User'}</button>
 							</div>
 						</form>
 					</div>

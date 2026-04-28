@@ -11,9 +11,7 @@ function Landing() {
                     <div className="landing-icon-wrap">
                         <img src={appLogo} alt="App Logo" className="landing-app-logo" />
                     </div>
-                    <h1 className="landing-title">Hospital</h1>
-                    <h1 className="landing-title">Appointment</h1>
-                    <h1 className="landing-title-last">Management</h1>
+                    <h1 className="landing-title">Doclick</h1>
                 </div>
             </div>
 

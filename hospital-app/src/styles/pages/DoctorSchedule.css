@@ -118,6 +118,10 @@
            bg-[#f8fafc] outline-none focus:border-[#54acb3] transition-colors;
 }
 
+.ds-dropdown {
+    @apply w-full min-w-0;
+}
+
 .ds-save-msg {
     @apply text-sm text-[#16a34a] font-medium;
 }

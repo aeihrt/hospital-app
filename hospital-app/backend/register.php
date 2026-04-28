@@ -36,6 +36,7 @@ $email = trim($input['email'] ?? '');
 $password = $input['password'] ?? '';
 $phone = trim($input['phone'] ?? '');
 $role = strtoupper(trim($input['role'] ?? 'PATIENT'));
+$status = strtoupper(trim($input['status'] ?? 'ACTIVE'));
 $dateOfBirth = trim($input['dateOfBirth'] ?? '');
 $specialization = trim($input['specialization'] ?? '');
 
@@ -86,6 +87,7 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 
 $conn = getDbConnection();
 $passwordHash = password_hash($password, PASSWORD_BCRYPT);
+$isActive = $status === 'INACTIVE' ? 0 : 1;
 $roleMap = [
     'ADMIN' => 'R001',
     'DOCTOR' => 'R002',
@@ -101,14 +103,14 @@ $userId = generateId('U');
 try {
     $conn->begin_transaction();
 
-    $userSql = 'INSERT INTO users (user_id, email, password_hash, first_name, last_name, phone) VALUES (?, ?, ?, ?, ?, ?)';
+    $userSql = 'INSERT INTO users (user_id, email, password_hash, first_name, last_name, phone, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)';
     $userStmt = $conn->prepare($userSql);
 
     if (!$userStmt) {
         throw new Exception('Failed to prepare user statement: ' . $conn->error);
     }
 
-    $userStmt->bind_param('ssssss', $userId, $email, $passwordHash, $firstName, $lastName, $phone);
+    $userStmt->bind_param('ssssssi', $userId, $email, $passwordHash, $firstName, $lastName, $phone, $isActive);
     $userStmt->execute();
     $userStmt->close();
 
@@ -162,6 +164,7 @@ try {
             'first_name' => $firstName,
             'last_name' => $lastName,
             'role' => $role,
+            'status' => $isActive === 1 ? 'Active' : 'Inactive',
         ],
     ]);
 } catch (Throwable $error) {

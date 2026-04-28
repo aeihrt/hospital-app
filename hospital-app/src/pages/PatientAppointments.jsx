@@ -3,42 +3,52 @@ import { useNavigate } from 'react-router-dom';
 import { CalendarDays, ClipboardCheck, CheckCircle2, Search, Eye, X } from 'lucide-react';
 import '../styles/pages/PatientAppointments.css';
 import AppLayout from '../components/AppLayout';
-
-const TODAY = 'March 9, 2026';
-
-const INITIAL_APPOINTMENTS = [
-    { id: 1, doctor: 'Dr. Michael Jones', specialty: 'Cardiology', room: 'Room 204', date: 'March 9, 2026', time: '9:00am', endTime: '9:30 AM', reason: 'Chest pain follow-up after last week\'s ECG results. Patient reported mild discomfort.', status: 'Completed' },
-    { id: 2, doctor: 'Dr. Michael Jones', specialty: 'Neurology', room: 'Room 314', date: 'March 9, 2026', time: '10:30am', endTime: '11:00 AM', reason: 'Headache Consultation', status: 'Completed' },
-    { id: 3, doctor: 'Dr. Michael Jones', specialty: 'Pediatrics', room: 'Room 104', date: 'March 9, 2026', time: '2:00pm', endTime: '3:00 PM', reason: 'Annual Checkup', status: 'Cancelled' },
-    { id: 4, doctor: 'Dr. Michael Jones', specialty: 'Cardiology', room: 'Room 204', date: 'March 12, 2026', time: '1:30pm', endTime: '2:00 PM', reason: 'Blood Pressure Check', status: 'Booked' },
-    { id: 5, doctor: 'Dr. Michael Jones', specialty: 'Pediatrics', room: 'Room 104', date: 'March 12, 2026', time: '2:30pm', endTime: '3:00 PM', reason: 'Annual Checkup', status: 'Booked' },
-    { id: 6, doctor: 'Dr. Michael Jones', specialty: 'Orthopedics', room: 'Room 415', date: 'March 12, 2026', time: '3:30pm', endTime: '4:00 PM', reason: 'Knee Pain', status: 'Booked' },
-];
+import { getJson, postJson } from '../utils/api';
 
 const STATUS_BADGE = {
-    Booked: 'pa-badge-booked',
-    Completed: 'pa-badge-completed',
-    Cancelled: 'pa-badge-cancelled',
-    Upcoming: 'pa-badge-upcoming',
+    BOOKED: 'pa-badge-booked',
+    COMPLETED: 'pa-badge-completed',
+    CANCELED: 'pa-badge-cancelled',
+    NO_SHOW: 'pa-badge-upcoming',
 };
 
-const FILTERS = ['All', 'Today', 'Upcoming', 'Completed', 'Cancelled'];
+const FILTERS = ['All', 'Booked', 'Completed', 'Canceled'];
+
+function formatStatusLabel(status) {
+    return String(status || '').replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
 
 function PatientAppointments() {
     const navigate = useNavigate();
     const [userName, setUserName] = useState('');
+    const [userId, setUserId] = useState('');
     const [loading, setLoading] = useState(true);
-    const [appointments, setAppointments] = useState(INITIAL_APPOINTMENTS);
+    const [appointments, setAppointments] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [activeFilter, setActiveFilter] = useState('All');
     const [viewAppt, setViewAppt] = useState(null);
     const [cancelAppt, setCancelAppt] = useState(null);
+    const [cancelError, setCancelError] = useState('');
+    const [isCanceling, setIsCanceling] = useState(false);
 
     useEffect(() => {
         const userId = localStorage.getItem('user_id');
         if (!userId) { navigate('/login'); return; }
         setUserName(localStorage.getItem('user_name') || 'Patient');
-        setLoading(false);
+        setUserId(userId);
+
+        const loadAppointments = async () => {
+            try {
+                const result = await getJson(`appointments.php?patientUserId=${encodeURIComponent(userId)}`);
+                setAppointments(result.appointments || []);
+            } catch (error) {
+                console.error('Error loading patient appointments:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadAppointments();
     }, [navigate]);
 
     const handleLogout = () => {
@@ -50,10 +60,8 @@ function PatientAppointments() {
 
     const filtered = useMemo(() => {
         let list = appointments;
-        if (activeFilter === 'Today') {
-            list = list.filter((a) => a.date === TODAY);
-        } else if (activeFilter !== 'All') {
-            list = list.filter((a) => a.status === activeFilter);
+        if (activeFilter !== 'All') {
+            list = list.filter((a) => formatStatusLabel(a.status) === activeFilter);
         }
         const q = searchTerm.trim().toLowerCase();
         if (q) {
@@ -64,19 +72,33 @@ function PatientAppointments() {
         return list;
     }, [activeFilter, searchTerm, appointments]);
 
-    const todayCount = appointments.filter((a) => a.date === TODAY).length;
-    const upcomingCount = appointments.filter((a) => a.status === 'Booked' || a.status === 'Upcoming').length;
-    const completedCount = appointments.filter((a) => a.status === 'Completed').length;
+    const todayCount = appointments.filter((a) => a.date === new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })).length;
+    const upcomingCount = appointments.filter((a) => ['BOOKED', 'NO_SHOW'].includes(a.status)).length;
+    const completedCount = appointments.filter((a) => a.status === 'COMPLETED').length;
 
-    const confirmCancel = () => {
-        setAppointments((prev) =>
-            prev.map((a) => (a.id === cancelAppt.id ? { ...a, status: 'Cancelled' } : a))
-        );
-        if (viewAppt?.id === cancelAppt.id) setViewAppt(null);
-        setCancelAppt(null);
+    const confirmCancel = async () => {
+        try {
+            setIsCanceling(true);
+            setCancelError('');
+            await postJson('appointments.php', {
+                appointmentId: cancelAppt.appointmentId,
+                patientUserId: userId,
+                status: 'CANCELED',
+            });
+
+            setAppointments((prev) =>
+                prev.map((a) => (a.appointmentId === cancelAppt.appointmentId ? { ...a, status: 'CANCELED' } : a))
+            );
+            if (viewAppt?.appointmentId === cancelAppt.appointmentId) setViewAppt(null);
+            setCancelAppt(null);
+        } catch (error) {
+            setCancelError(error?.message || 'Failed to cancel appointment.');
+        } finally {
+            setIsCanceling(false);
+        }
     };
 
-    const canCancel = (a) => a.status !== 'Cancelled' && a.status !== 'Completed';
+    const canCancel = (a) => a.status !== 'CANCELED' && a.status !== 'COMPLETED';
 
     if (loading) return <div className="pa-loading"><span>Loading...</span></div>;
 
@@ -175,7 +197,7 @@ function PatientAppointments() {
                                             </td>
                                             <td>
                                                 <span className={`pa-badge ${STATUS_BADGE[a.status] || ''}`}>
-                                                    {a.status}
+                                                    {formatStatusLabel(a.status)}
                                                 </span>
                                             </td>
                                             <td>
@@ -237,7 +259,7 @@ function PatientAppointments() {
                             <div className="pa-modal-row">
                                 <div className="pa-field">
                                     <label className="pa-field-label">Status</label>
-                                    <input type="text" className="pa-input" readOnly value={viewAppt.status} />
+                                    <input type="text" className="pa-input" readOnly value={formatStatusLabel(viewAppt.status)} />
                                 </div>
                                 <div className="pa-field">
                                     <label className="pa-field-label">Room</label>
@@ -280,6 +302,7 @@ function PatientAppointments() {
                                     status to Cancelled and cannot be undone.
                                 </p>
                             </div>
+                            {cancelError && <p className="pa-cancel-error">{cancelError}</p>}
                             <div className="pa-modal-row">
                                 <div className="pa-field">
                                     <label className="pa-field-label">Doctor</label>
@@ -304,8 +327,8 @@ function PatientAppointments() {
                             <button type="button" className="pa-modal-close-btn" onClick={() => setCancelAppt(null)}>
                                 Keep Appointment
                             </button>
-                            <button type="button" className="pa-modal-danger-btn" onClick={confirmCancel}>
-                                Yes, Cancel It
+                            <button type="button" className="pa-modal-danger-btn" onClick={confirmCancel} disabled={isCanceling}>
+                                {isCanceling ? 'Canceling...' : 'Yes, Cancel It'}
                             </button>
                         </div>
                     </div>

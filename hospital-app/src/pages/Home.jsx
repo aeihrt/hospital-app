@@ -13,7 +13,24 @@ import {
 } from 'lucide-react';
 import '../styles/pages/Home.css';
 import AppLayout from '../components/AppLayout';
-import { postJson } from '../utils/api';
+import FilterDropdown from '../components/FilterDropdown';
+import { getJson, postJson } from '../utils/api';
+
+const APPOINTMENT_STATUS_FILTERS = [
+    { value: 'All', label: 'All' },
+    { value: 'BOOKED', label: 'Booked' },
+    { value: 'COMPLETED', label: 'Completed' },
+    { value: 'CANCELED', label: 'Canceled' },
+    { value: 'NO_SHOW', label: 'No-show' },
+];
+
+function formatStatusLabel(status) {
+    return String(status || '').replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function getStatusClass(status) {
+    return ['BOOKED', 'COMPLETED'].includes(status) ? 'home-status-active' : 'home-status-inactive';
+}
 
 function Home() {
     const navigate = useNavigate();
@@ -24,6 +41,7 @@ function Home() {
     const [isCreatingAppointment, setIsCreatingAppointment] = useState(false);
     const [addAppointmentError, setAddAppointmentError] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
+    const [appointments, setAppointments] = useState([]);
     const [newAppointment, setNewAppointment] = useState({
         patientName: '',
         doctor: '',
@@ -33,74 +51,11 @@ function Home() {
         notes: '',
     });
 
-    const [appointments, setAppointments] = useState([
-        {
-            time: '9:30am',
-            date: 'March 24, 2026',
-            patientName: 'John Doe',
-            patientMeta: 'P - 12345 | Male, 35yrs old',
-            doctor: 'Dr. Michael Jones',
-            department: 'Cardiology',
-            status: 'Active',
-        },
-        {
-            time: '10:00am',
-            date: 'March 24, 2026',
-            patientName: 'Alice Smith',
-            patientMeta: 'P - 12345 | Female, 28yrs old',
-            doctor: 'Dr. Sarah Smith',
-            department: 'Cardiology',
-            status: 'Active',
-        },
-        {
-            time: '11:30am',
-            date: 'March 24, 2026',
-            patientName: 'Robert White',
-            patientMeta: 'P - 12345 | Male, 54yrs old',
-            doctor: 'Dr. David Lee',
-            department: 'Cardiology',
-            status: 'Active',
-        },
-        {
-            time: '1:15pm',
-            date: 'March 24, 2026',
-            patientName: 'Emily Miller',
-            patientMeta: 'P - 12345 | Female, 42yrs old',
-            doctor: 'Dr. Maria Garcia',
-            department: 'Cardiology',
-            status: 'Inactive',
-        },
-        {
-            time: '3:00pm',
-            date: 'March 24, 2026',
-            patientName: 'Thomas King',
-            patientMeta: 'P - 12345 | Male, 61yrs old',
-            doctor: 'Dr. Michael Jones',
-            department: 'Cardiology',
-            status: 'Active',
-        },
-        {
-            time: '4:10pm',
-            date: 'March 24, 2026',
-            patientName: 'Laura Johnson',
-            patientMeta: 'P - 12345 | Female, 31yrs old',
-            doctor: 'Dr. Jose Santos',
-            department: 'Cardiology',
-            status: 'Active',
-        },
-    ]);
-
-    const mappedRole = useMemo(() => {
-        const roles = {
-            R001: 'Admin',
-            R002: 'Doctor',
-            R003: 'Patient',
-            ADMIN: 'Admin',
-            DOCTOR: 'Doctor',
-            PATIENT: 'Patient',
-        };
-        return roles[userRole] || 'User';
-    }, [userRole]);
+    const todayLabel = new Date().toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+    });
 
     const filteredAppointments = useMemo(() => {
         if (statusFilter === 'All') {
@@ -110,8 +65,14 @@ function Home() {
         return appointments.filter((appointment) => appointment.status === statusFilter);
     }, [appointments, statusFilter]);
 
+    const totalAppointments = appointments.length;
+    const bookedAppointments = appointments.filter((appointment) => appointment.status === 'BOOKED').length;
+    const completedAppointments = appointments.filter((appointment) => appointment.status === 'COMPLETED').length;
+    const canceledAppointments = appointments.filter((appointment) => ['CANCELED', 'NO_SHOW'].includes(appointment.status)).length;
+
     useEffect(() => {
         loadUserData();
+        loadAppointments();
     }, []);
 
     const loadUserData = async () => {
@@ -128,6 +89,15 @@ function Home() {
             console.error('Error loading user data:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const loadAppointments = async () => {
+        try {
+            const result = await getJson('appointments.php');
+            setAppointments(result.appointments || []);
+        } catch (error) {
+            console.error('Error loading appointments:', error);
         }
     };
 
@@ -221,8 +191,8 @@ function Home() {
                             <CalendarCheck size={18} />
                         </div>
                         <div>
-                            <p className="home-stat-caption">TODAY'S VISITS</p>
-                            <p className="home-stat-number">42</p>
+                            <p className="home-stat-caption">TOTAL APPOINTMENTS</p>
+                            <p className="home-stat-number">{totalAppointments}</p>
                         </div>
                     </article>
 
@@ -231,8 +201,8 @@ function Home() {
                             <ShieldCheck size={18} />
                         </div>
                         <div>
-                            <p className="home-stat-caption">CONFIRMED</p>
-                            <p className="home-stat-number">38</p>
+                            <p className="home-stat-caption">BOOKED</p>
+                            <p className="home-stat-number">{bookedAppointments}</p>
                         </div>
                     </article>
 
@@ -241,8 +211,8 @@ function Home() {
                             <Clock3 size={18} />
                         </div>
                         <div>
-                            <p className="home-stat-caption">WAITLIST</p>
-                            <p className="home-stat-number">12</p>
+                            <p className="home-stat-caption">COMPLETED</p>
+                            <p className="home-stat-number">{completedAppointments}</p>
                         </div>
                     </article>
 
@@ -251,8 +221,8 @@ function Home() {
                             <CalendarX size={18} />
                         </div>
                         <div>
-                            <p className="home-stat-caption">CANCELLATIONS</p>
-                            <p className="home-stat-number">4</p>
+                            <p className="home-stat-caption">CANCELED</p>
+                            <p className="home-stat-number">{canceledAppointments}</p>
                         </div>
                     </article>
                 </section>
@@ -263,28 +233,28 @@ function Home() {
                         <button type="button" className="home-filter-btn">Week</button>
                         <button type="button" className="home-filter-btn">Month</button>
                     </div>
-                    <select className="select-dark">
-                        <option>All Roles</option>
-                        <option>Admin</option>
-                        <option>Doctor</option>
-                        <option>Patient</option>
-                    </select>
+                    <FilterDropdown
+                        value={statusFilter}
+                        options={APPOINTMENT_STATUS_FILTERS}
+                        onChange={setStatusFilter}
+                        ariaLabel="Select appointment status"
+                    />
                     <div className="home-status-filter">
-                        {['All', 'Inactive', 'Active'].map((status) => (
+                        {APPOINTMENT_STATUS_FILTERS.map((status) => (
                             <button
-                                key={status}
+                                key={status.value}
                                 type="button"
-                                className={`home-status-btn ${statusFilter === status ? 'home-status-btn-active' : ''}`}
-                                onClick={() => setStatusFilter(status)}
+                                className={`home-status-btn ${statusFilter === status.value ? 'home-status-btn-active' : ''}`}
+                                onClick={() => setStatusFilter(status.value)}
                             >
-                                {status}
+                                {status.label}
                             </button>
                         ))}
                     </div>
                 </section>
 
                 <section className="home-table-wrap">
-                    <div className="home-table-top">Showing {filteredAppointments.length} of {appointments.length} users</div>
+                    <div className="home-table-top">Showing {filteredAppointments.length} of {appointments.length} appointments</div>
                     <div className="home-table-scroll">
                         <table className="home-table">
                             <thead>
@@ -299,7 +269,7 @@ function Home() {
                             </thead>
                             <tbody>
                                 {filteredAppointments.map((row, index) => (
-                                    <tr key={`${row.patientName}-${index}`}>
+                                    <tr key={`${row.appointmentId || row.patientName}-${index}`}>
                                         <td>
                                             <p className="home-row-main">{row.time}</p>
                                             <p className="home-row-sub">{row.date}</p>
@@ -311,12 +281,8 @@ function Home() {
                                         <td className="home-row-main">{row.doctor}</td>
                                         <td className="home-row-main">{row.department}</td>
                                         <td>
-                                            <span
-                                                className={`home-status ${
-                                                    row.status === 'Active' ? 'home-status-active' : 'home-status-inactive'
-                                                }`}
-                                            >
-                                                {row.status}
+                                            <span className={`home-status ${getStatusClass(row.status)}`}>
+                                                {formatStatusLabel(row.status)}
                                             </span>
                                         </td>
                                         <td>
@@ -369,7 +335,7 @@ function Home() {
                                     id="patientName"
                                     name="patientName"
                                     type="text"
-                                    placeholder="Search Patient Name"
+                                    placeholder="Search patient name"
                                     value={newAppointment.patientName}
                                     onChange={handleAddInputChange}
                                     required
@@ -382,7 +348,7 @@ function Home() {
                                     id="doctor"
                                     name="doctor"
                                     type="text"
-                                    placeholder="e.g. Maria"
+                                    placeholder="e.g. Dr. Maria Garcia"
                                     value={newAppointment.doctor}
                                     onChange={handleAddInputChange}
                                     required
@@ -395,7 +361,7 @@ function Home() {
                                     id="department"
                                     name="department"
                                     type="text"
-                                    placeholder="e.g. Reyes"
+                                    placeholder="e.g. Cardiology"
                                     value={newAppointment.department}
                                     onChange={handleAddInputChange}
                                     required
@@ -417,7 +383,7 @@ function Home() {
                                 <textarea
                                     id="notes"
                                     name="notes"
-                                    placeholder="Active"
+                                    placeholder="Add appointment notes"
                                     rows={5}
                                     value={newAppointment.notes}
                                     onChange={handleAddInputChange}

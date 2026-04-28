@@ -69,8 +69,8 @@ function AppLayout({ children, activePage, title, userName, onLogout }) {
                     >
                         <Menu size={20} />
                     </button>
-                    <img src={appLogo} alt="Hospital App" className="app-topbar-logo" />
-                    <span className="app-topbar-brand">Hospital App</span>
+                    <img src={appLogo} alt="Doclick" className="app-topbar-logo" />
+                    <span className="app-topbar-brand">Doclick</span>
                     <span className="app-topbar-sep" aria-hidden="true">·</span>
                     <span className="app-topbar-page">{title}</span>
                 </div>

@@ -60,9 +60,7 @@ function Login() {
                     <div className="login-icon-wrap">
                         <img src={appLogo} alt="App Logo" className="login-app-logo" />
                     </div>
-                    <h1 className="login-title">Hospital</h1>
-                    <h1 className="login-title">Appointment</h1>
-                    <h1 className="login-title-last">Management</h1>
+                    <h1 className="login-title">Doclick</h1>
                 </div>
             </div>
 

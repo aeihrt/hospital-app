@@ -67,7 +67,7 @@
 }
 
 .doctors-add-btn {
-	@apply w-fit inline-flex items-center gap-2 py-[9px] px-[14px] rounded-xl border border-[#76bcc7] bg-white text-[#1f3557] text-[15px] leading-none font-semibold shadow-[0_3px_8px_rgba(31,53,87,0.15)];
+	@apply w-fit inline-flex items-center gap-2 py-[9px] px-[14px] rounded-xl border border-[#76bcc7] bg-white text-[#1f3557] text-[15px] shadow-[0_3px_8px_rgba(31,53,87,0.15)];
 }
 
 .doctors-table-wrap {

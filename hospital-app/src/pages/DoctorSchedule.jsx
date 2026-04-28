@@ -2,6 +2,11 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/pages/DoctorSchedule.css';
 import AppLayout from '../components/AppLayout';
+import { getJson } from '../utils/api';
+import FilterDropdown from '../components/FilterDropdown';
+
+const DAY_OPTIONS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const STATUS_OPTIONS = ['Active', 'Inactive'];
 
 const INITIAL_SCHEDULE = {
     Monday: [
@@ -28,8 +33,6 @@ const INITIAL_SCHEDULE = {
     ],
 };
 
-const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-
 function DoctorSchedule() {
     const navigate = useNavigate();
     const [userName, setUserName] = useState('');
@@ -48,7 +51,24 @@ function DoctorSchedule() {
         const userId = localStorage.getItem('user_id');
         if (!userId) { navigate('/login'); return; }
         setUserName(localStorage.getItem('user_name') || 'Doctor');
-        setLoading(false);
+        (async () => {
+            try {
+                const res = await getJson('doctors.php');
+                const found = (res.doctors || []).find((d) => d.userId === userId);
+                if (found && Array.isArray(found.schedules)) {
+                    const mapped = {};
+                    found.schedules.forEach((s) => {
+                        if (!mapped[s.day]) mapped[s.day] = [];
+                        mapped[s.day].push({ time: s.time, status: s.isActive ? 'Open' : 'Inactive' });
+                    });
+                    setSchedule(mapped);
+                }
+            } catch (err) {
+                // ignore
+            } finally {
+                setLoading(false);
+            }
+        })();
     }, [navigate]);
 
     const handleLogout = () => {
@@ -136,13 +156,13 @@ function DoctorSchedule() {
                             <form className="ds-add-form" onSubmit={handleSave}>
                                 <div className="ds-field">
                                     <label className="ds-field-label">Day of Week</label>
-                                    <select
-                                        className="ds-input"
+                                    <FilterDropdown
                                         value={form.day}
-                                        onChange={(e) => setForm({ ...form, day: e.target.value })}
-                                    >
-                                        {DAYS.map((d) => <option key={d}>{d}</option>)}
-                                    </select>
+                                        options={DAY_OPTIONS}
+                                        onChange={(day) => setForm({ ...form, day })}
+                                        ariaLabel="Select day of week"
+                                        className="ds-dropdown"
+                                    />
                                 </div>
                                 <div className="ds-field-row">
                                     <div className="ds-field">
@@ -177,14 +197,13 @@ function DoctorSchedule() {
                                 </div>
                                 <div className="ds-field">
                                     <label className="ds-field-label">Status</label>
-                                    <select
-                                        className="ds-input"
+                                    <FilterDropdown
                                         value={form.status}
-                                        onChange={(e) => setForm({ ...form, status: e.target.value })}
-                                    >
-                                        <option>Active</option>
-                                        <option>Inactive</option>
-                                    </select>
+                                        options={STATUS_OPTIONS}
+                                        onChange={(status) => setForm({ ...form, status })}
+                                        ariaLabel="Select schedule status"
+                                        className="ds-dropdown"
+                                    />
                                 </div>
                                 {saveMsg && <p className="ds-save-msg">{saveMsg}</p>}
                                 <button type="submit" className="ds-save-btn">Save Schedule</button>

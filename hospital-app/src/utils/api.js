@@ -1,12 +1,12 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost/hospital-app/hospital-app/backend';
 
-export async function postJson(endpoint, payload) {
+async function requestJson(endpoint, options = {}) {
   const response = await fetch(`${API_BASE_URL}/${endpoint}`, {
-    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      ...(options.headers || {}),
     },
-    body: JSON.stringify(payload),
+    ...options,
   });
 
   let data;
@@ -21,4 +21,15 @@ export async function postJson(endpoint, payload) {
   }
 
   return data;
+}
+
+export async function getJson(endpoint) {
+  return requestJson(endpoint, { method: 'GET' });
+}
+
+export async function postJson(endpoint, payload) {
+  return requestJson(endpoint, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
 }

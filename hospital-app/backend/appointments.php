@@ -35,6 +35,116 @@ function generateSyntheticEmail($fullName)
     return $slug . '.' . substr(bin2hex(random_bytes(3)), 0, 6) . '@local.patient';
 }
 
+function formatAppointmentResponse(array $row): array
+{
+    $startTimestamp = strtotime($row['appointment_start']);
+
+    return [
+        'appointmentId' => $row['appointment_id'],
+        'time' => $startTimestamp ? strtolower(date('g:ia', $startTimestamp)) : $row['appointment_start'],
+        'date' => $startTimestamp ? date('F j, Y', $startTimestamp) : $row['appointment_start'],
+        'patientName' => $row['patient_name'] ?: 'Unknown patient',
+        'patientMeta' => $row['patient_meta'] ?: 'N/A',
+        'doctor' => $row['doctor_name'] ?: 'Unknown doctor',
+        'department' => $row['department'] ?: 'General',
+        'specialty' => $row['department'] ?: 'General',
+        'room' => $row['room'] ?: 'N/A',
+        'reason' => $row['reason'] ?: 'No reason provided',
+        'status' => $row['status'] ?: 'BOOKED',
+        'bookedBy' => $row['created_by_role'] ?: 'System',
+        'endTime' => $startTimestamp ? strtoupper(date('g:i A', strtotime($row['appointment_end']))) : $row['appointment_end'],
+    ];
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $conn = getDbConnection();
+
+    $patientUserId = trim((string) ($_GET['patientUserId'] ?? ''));
+    $doctorUserId = trim((string) ($_GET['doctorUserId'] ?? ''));
+
+    try {
+        $whereClause = '';
+        if ($patientUserId !== '' && $doctorUserId !== '') {
+            $whereClause = 'WHERE p.user_id = ? AND d.user_id = ?';
+        } elseif ($patientUserId !== '') {
+            $whereClause = 'WHERE p.user_id = ?';
+        } elseif ($doctorUserId !== '') {
+            $whereClause = 'WHERE d.user_id = ?';
+        }
+
+        $sql = <<<SQL
+            SELECT
+                a.appointment_id,
+                a.appointment_start,
+                a.appointment_end,
+                a.status,
+                a.reason,
+                d.full_name AS doctor_name,
+                d.department,
+                d.room,
+                CONCAT(COALESCE(u.first_name, ''), CASE WHEN COALESCE(u.last_name, '') = '' THEN '' ELSE CONCAT(' ', u.last_name) END) AS patient_name,
+                CASE
+                    WHEN p.date_of_birth IS NULL THEN 'Unknown'
+                    ELSE CONCAT(DATE_FORMAT(p.date_of_birth, '%b %e, %Y'), ' | ', COALESCE(p.sex, 'N/A'))
+                END AS patient_meta,
+                CASE
+                    WHEN cb.user_id IS NULL THEN NULL
+                    WHEN EXISTS (SELECT 1 FROM user_roles ur WHERE ur.user_id = cb.user_id AND ur.role_id = 'R001') THEN 'Admin'
+                    WHEN EXISTS (SELECT 1 FROM user_roles ur WHERE ur.user_id = cb.user_id AND ur.role_id = 'R002') THEN 'Doctor'
+                    WHEN EXISTS (SELECT 1 FROM user_roles ur WHERE ur.user_id = cb.user_id AND ur.role_id = 'R003') THEN 'Patient'
+                    ELSE NULL
+                END AS created_by_role
+            FROM appointments a
+            INNER JOIN patients p ON p.patient_id = a.patient_id
+            INNER JOIN users u ON u.user_id = p.user_id
+            INNER JOIN doctors d ON d.doctor_id = a.doctor_id
+            LEFT JOIN users cb ON cb.user_id = a.created_by
+            {$whereClause}
+            ORDER BY a.appointment_start DESC
+        SQL;
+
+        $stmt = $conn->prepare($sql);
+        if (!$stmt) {
+            throw new Exception('Failed to prepare appointments query: ' . $conn->error);
+        }
+
+        if ($patientUserId !== '' && $doctorUserId !== '') {
+            $stmt->bind_param('ss', $patientUserId, $doctorUserId);
+        } elseif ($patientUserId !== '') {
+            $stmt->bind_param('s', $patientUserId);
+        } elseif ($doctorUserId !== '') {
+            $stmt->bind_param('s', $doctorUserId);
+        }
+
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $appointments = [];
+
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $appointments[] = formatAppointmentResponse($row);
+            }
+        }
+
+        $stmt->close();
+
+        echo json_encode([
+            'success' => true,
+            'appointments' => $appointments,
+        ]);
+    } catch (Throwable $error) {
+        http_response_code(500);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Failed to load appointments',
+            'error' => $error->getMessage(),
+        ]);
+    }
+
+    $conn->close();
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode([
@@ -56,8 +166,62 @@ $date = trim($input['date'] ?? '');
 $time = trim($input['time'] ?? '');
 $notes = trim($input['notes'] ?? '');
 $createdBy = trim((string) ($input['createdBy'] ?? ''));
+$patientUserId = trim((string) ($input['patientUserId'] ?? ''));
+$appointmentId = trim((string) ($input['appointmentId'] ?? ''));
 $status = strtoupper(trim($input['status'] ?? 'BOOKED'));
 $slotMinutes = (int) ($input['slotMinutes'] ?? 30);
+
+$conn = getDbConnection();
+
+if ($appointmentId !== '' && !in_array($status, ['BOOKED', 'COMPLETED', 'CANCELED', 'NO_SHOW'], true)) {
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Invalid status value',
+    ]);
+    $conn->close();
+    exit;
+}
+
+if ($appointmentId !== '' && $patientUserId !== '' && $status !== 'BOOKED') {
+    $updateSql = '
+        UPDATE appointments a
+        INNER JOIN patients p ON p.patient_id = a.patient_id
+        SET a.status = ?, a.updated_at = CURRENT_TIMESTAMP
+        WHERE a.appointment_id = ? AND p.user_id = ?
+    ';
+    $updateStmt = $conn->prepare($updateSql);
+    if (!$updateStmt) {
+        throw new Exception('Failed to prepare appointment update: ' . $conn->error);
+    }
+
+    $updateStmt->bind_param('sss', $status, $appointmentId, $patientUserId);
+    $updateStmt->execute();
+    $affectedRows = $updateStmt->affected_rows;
+    $updateStmt->close();
+
+    if ($affectedRows === 0) {
+        http_response_code(404);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Appointment not found or cannot be updated',
+        ]);
+        $conn->close();
+        exit;
+    }
+
+    echo json_encode([
+        'success' => true,
+        'message' => 'Appointment updated successfully',
+        'appointment' => [
+            'appointmentId' => $appointmentId,
+            'status' => $status,
+        ],
+    ]);
+
+    $conn->close();
+    exit;
+}
 
 if ($patientName === '' || $doctorName === '' || $department === '' || $date === '' || $time === '') {
     http_response_code(400);
@@ -98,8 +262,6 @@ if ($startTimestamp === false) {
 $appointmentStart = date('Y-m-d H:i:s', $startTimestamp);
 $appointmentEnd = date('Y-m-d H:i:s', strtotime('+' . $slotMinutes . ' minutes', $startTimestamp));
 
-$conn = getDbConnection();
-
 try {
     $conn->begin_transaction();
 
@@ -130,23 +292,40 @@ try {
         $insertDoctorStmt->close();
     }
 
-    $patientSql = "
-        SELECT p.patient_id
-        FROM patients p
-        INNER JOIN users u ON u.user_id = p.user_id
-        WHERE LOWER(TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, '')))) = LOWER(TRIM(?))
-        LIMIT 1
-    ";
-    $patientStmt = $conn->prepare($patientSql);
-    if (!$patientStmt) {
-        throw new Exception('Failed to prepare patient lookup: ' . $conn->error);
+    $patientRow = null;
+    if ($patientUserId !== '') {
+        $patientSql = 'SELECT patient_id FROM patients WHERE user_id = ? LIMIT 1';
+        $patientStmt = $conn->prepare($patientSql);
+        if (!$patientStmt) {
+            throw new Exception('Failed to prepare patient lookup: ' . $conn->error);
+        }
+
+        $patientStmt->bind_param('s', $patientUserId);
+        $patientStmt->execute();
+        $patientResult = $patientStmt->get_result();
+        $patientRow = $patientResult ? $patientResult->fetch_assoc() : null;
+        $patientStmt->close();
     }
 
-    $patientStmt->bind_param('s', $patientName);
-    $patientStmt->execute();
-    $patientResult = $patientStmt->get_result();
-    $patientRow = $patientResult ? $patientResult->fetch_assoc() : null;
-    $patientStmt->close();
+    if ($patientRow === null) {
+        $patientSql = "
+            SELECT p.patient_id
+            FROM patients p
+            INNER JOIN users u ON u.user_id = p.user_id
+            WHERE LOWER(TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, '')))) = LOWER(TRIM(?))
+            LIMIT 1
+        ";
+        $patientStmt = $conn->prepare($patientSql);
+        if (!$patientStmt) {
+            throw new Exception('Failed to prepare patient lookup: ' . $conn->error);
+        }
+
+        $patientStmt->bind_param('s', $patientName);
+        $patientStmt->execute();
+        $patientResult = $patientStmt->get_result();
+        $patientRow = $patientResult ? $patientResult->fetch_assoc() : null;
+        $patientStmt->close();
+    }
 
     if ($patientRow) {
         $patientId = $patientRow['patient_id'];
@@ -233,6 +412,8 @@ try {
     $insertAppointmentStmt->execute();
     $insertAppointmentStmt->close();
 
+    $reasonText = $reason ?? ($notes === '' ? null : $notes);
+
     $conn->commit();
 
     echo json_encode([
@@ -246,7 +427,12 @@ try {
             'patientMeta' => $reason ?: 'P - N/A | N/A',
             'doctor' => $doctorName,
             'department' => $department,
-            'status' => 'Active',
+            'specialty' => $department,
+            'room' => null,
+            'reason' => $reasonText,
+            'status' => $status,
+            'bookedBy' => $createdByUserId ? 'Admin' : 'System',
+            'endTime' => strtoupper(date('g:i A', strtotime($appointmentEnd))),
         ],
     ]);
 } catch (Throwable $error) {
