@@ -15,6 +15,12 @@ import AppLayout from '../components/AppLayout';
 import FilterDropdown from '../components/FilterDropdown';
 import { getJson, postJson } from '../utils/api';
 
+function formatCreatedAt(dateStr) {
+	if (!dateStr) return 'N/A';
+	const d = new Date(dateStr);
+	return isNaN(d.getTime()) ? dateStr : d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
 function Manage() {
 	const navigate = useNavigate();
 	const [userName, setUserName] = useState('');
@@ -169,11 +175,7 @@ function Manage() {
 					phone: newUser.phone.trim(),
 					role: newUser.role,
 					status: result.user?.status || newUser.status,
-					createdAt: new Date().toLocaleDateString('en-US', {
-						month: 'short',
-						day: 'numeric',
-						year: 'numeric',
-					}),
+					createdAt: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
 				},
 				...previous,
 			]);
@@ -388,7 +390,7 @@ function Manage() {
 												{user.status}
 											</span>
 										</td>
-										<td className="manage-cell-main">{user.createdAt}</td>
+										<td className="manage-cell-main">{formatCreatedAt(user.createdAt)}</td>
 										<td>
 											<div className="manage-actions-inline">
 												<button type="button" className="manage-action-icon" aria-label="Edit user" onClick={() => openEditModal(user)}>

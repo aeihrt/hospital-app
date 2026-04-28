@@ -147,7 +147,7 @@ function Dashboard() {
 					<article className="dashboard-panel">
 						<div className="dashboard-panel-head">
 							<h3>Upcoming Appointments</h3>
-							<button type="button">View all</button>
+							<button type="button" onClick={() => navigate('/home')}>View all</button>
 						</div>
 						<div className="dashboard-appointments-list">
 							{filteredUpcomingAppointments.map((appointment) => (

@@ -457,8 +457,8 @@ function Doctors() {
 				)}
 
 				{isViewOpen && selectedDoctor && (
-					<div className="doctors-view-overlay app-modal-backdrop" onClick={closeView}>
-						<div className="doctors-view-modal app-modal" onClick={(event) => event.stopPropagation()}>
+					<div className="doctors-view-overlay" onClick={closeView}>
+						<div className="doctors-view-modal" onClick={(event) => event.stopPropagation()}>
 							<header className="doctors-view-head">
 								<div className="doctors-avatar doctors-avatar-large">{selectedDoctor.name.split(' ').map((part) => part[0]).join('').slice(0, 2)}</div>
 								<p className="doctors-profile-name doctors-profile-name-large">{selectedDoctor.name}</p>
@@ -492,8 +492,8 @@ function Doctors() {
 				)}
 
 				{isFormOpen && (
-					<div className="doctors-form-overlay app-modal-backdrop" onClick={closeForm}>
-						<div className="doctors-form-modal app-modal" onClick={(event) => event.stopPropagation()}>
+					<div className="doctors-form-overlay" onClick={closeForm}>
+						<div className="doctors-form-modal" onClick={(event) => event.stopPropagation()}>
 							<button type="button" className="doctors-form-close" onClick={closeForm} aria-label="Close doctor form">
 								<X size={30} />
 							</button>
@@ -550,8 +550,8 @@ function Doctors() {
 				)}
 
 				{isScheduleModalOpen && (
-					<div className="doctors-form-overlay app-modal-backdrop" onClick={closeScheduleModal}>
-						<div className="doctors-form-modal doctors-modal-compact app-modal" onClick={(event) => event.stopPropagation()}>
+					<div className="doctors-form-overlay" onClick={closeScheduleModal}>
+						<div className="doctors-form-modal doctors-modal-compact" onClick={(event) => event.stopPropagation()}>
 							<div className="app-modal-title-wrap">
 								<h3 className="app-modal-title">Update Doctor Schedule</h3>
 								<button type="button" className="doctors-form-close" onClick={closeScheduleModal} aria-label="Close schedule modal">
@@ -559,7 +559,7 @@ function Doctors() {
 								</button>
 							</div>
 
-							<form className="doctors-form-grid app-modal-body" onSubmit={handleScheduleSubmit}>
+							<form className="doctors-form-grid" onSubmit={handleScheduleSubmit}>
 								<div className="doctors-form-field doctors-form-field-full">
 									<label htmlFor="scheduleDoctor">Doctor</label>
 									<input id="scheduleDoctor" value={scheduleForm.name} readOnly />
@@ -624,7 +624,7 @@ function Doctors() {
 
 								{scheduleError && <p className="doctors-form-error doctors-form-field-full">{scheduleError}</p>}
 
-								<div className="doctors-form-actions doctors-form-field-full app-modal-footer">
+								<div className="doctors-form-actions doctors-form-field-full">
 									<button type="button" className="doctors-cancel-btn" onClick={closeScheduleModal}>Cancel</button>
 									<button type="submit" className="doctors-update-btn" disabled={isSavingSchedule}>
 										{isSavingSchedule ? 'Saving...' : 'Save Schedule'}
