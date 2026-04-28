@@ -254,7 +254,11 @@
 }
 
 .doctors-modal-compact {
-	@apply max-w-[640px] p-0 overflow-hidden;
+	@apply max-w-[640px] p-0;
+}
+
+.doctors-modal-compact .app-modal-title-wrap {
+	@apply pt-4 pb-3;
 }
 
 .doctors-form-close {

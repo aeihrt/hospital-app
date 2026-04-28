@@ -156,8 +156,8 @@ function Doctors() {
 	};
 
 	const closeScheduleModal = () => {
-		setAccessCode('');
-		setAccessMessage('');
+		setIsScheduleModalOpen(false);
+		setScheduleError('');
 	};
 
 	const handleFormChange = (event) => {
@@ -274,7 +274,7 @@ function Doctors() {
 		} catch (error) {
 			setScheduleError(error?.message || 'Failed to update schedule.');
 		} finally {
-			setAccessMessage('Unable to copy automatically. Please copy it manually.');
+			setIsSavingSchedule(false);
 		}
 	};
 
@@ -559,7 +559,7 @@ function Doctors() {
 								</button>
 							</div>
 
-							<form className="doctors-form-grid" onSubmit={handleScheduleSubmit}>
+							<form className="doctors-form-grid px-6 pt-3 pb-6" onSubmit={handleScheduleSubmit}>
 								<div className="doctors-form-field doctors-form-field-full">
 									<label htmlFor="scheduleDoctor">Doctor</label>
 									<input id="scheduleDoctor" value={scheduleForm.name} readOnly />
