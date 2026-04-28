@@ -379,10 +379,13 @@ function Doctors() {
 
 								<div className="doctors-form-field doctors-form-field-full">
 									<label htmlFor="doctorStatus">Status</label>
-									<select id="doctorStatus" name="status" className="doctors-form-select" value={doctorForm.status} onChange={handleFormChange}>
-										<option value="Active">Active</option>
-										<option value="Inactive">Inactive</option>
-									</select>
+									<FilterDropdown
+										value={doctorForm.status}
+										options={['Active', 'Inactive']}
+										onChange={(status) => setDoctorForm((previous) => ({ ...previous, status }))}
+										ariaLabel="Select doctor status"
+										className="doctors-form-dropdown"
+									/>
 								</div>
 
 								<div className="doctors-form-actions doctors-form-field-full">

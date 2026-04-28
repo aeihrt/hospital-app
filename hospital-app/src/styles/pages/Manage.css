@@ -145,6 +145,10 @@
     @apply p-[18px] md:px-5 md:py-[18px] grid grid-cols-1 md:grid-cols-2 gap-3;
 }
 
+.manage-modal-dropdown {
+    @apply w-full min-w-0;
+}
+
 .manage-field {
     @apply flex flex-col gap-2;
 }

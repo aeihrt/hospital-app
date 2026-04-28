@@ -316,20 +316,24 @@ function Manage() {
 
 							<div className="manage-field manage-field-full">
 								<label htmlFor="role">Assign Roles</label>
-								<select id="role" name="role" value={newUser.role} onChange={handleNewUserInput} required>
-									<option value="">Select role</option>
-									<option value="Admin">Admin</option>
-									<option value="Doctor">Doctor</option>
-									<option value="Patient">Patient</option>
-								</select>
+								<FilterDropdown
+									value={newUser.role || 'Select role'}
+									options={['Select role', 'Admin', 'Doctor', 'Patient']}
+									onChange={(role) => setNewUser((previous) => ({ ...previous, role: role === 'Select role' ? '' : role }))}
+									ariaLabel="Assign role"
+									className="manage-modal-dropdown"
+								/>
 							</div>
 
 							<div className="manage-field manage-field-full">
 								<label htmlFor="status">Status</label>
-								<select id="status" name="status" value={newUser.status} onChange={handleNewUserInput} required>
-									<option value="Active">Active</option>
-									<option value="Inactive">Inactive</option>
-								</select>
+								<FilterDropdown
+									value={newUser.status}
+									options={['Active', 'Inactive']}
+									onChange={(status) => setNewUser((previous) => ({ ...previous, status }))}
+									ariaLabel="Select user status"
+									className="manage-modal-dropdown"
+								/>
 							</div>
 
 							{newUser.role === 'Patient' && (
