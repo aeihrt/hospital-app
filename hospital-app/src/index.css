@@ -16,3 +16,26 @@ body,
   min-height: 100vh;
   font-family: 'Inter', sans-serif;
 }
+
+input[type='date'],
+input[type='time'] {
+  accent-color: #54acb3;
+  color-scheme: light;
+}
+
+input[type='date']::-webkit-calendar-picker-indicator,
+input[type='time']::-webkit-calendar-picker-indicator {
+  filter: invert(58%) sepia(18%) saturate(854%) hue-rotate(139deg) brightness(92%) contrast(88%);
+  cursor: pointer;
+}
+
+input[type='date']::-webkit-datetime-edit,
+input[type='time']::-webkit-datetime-edit {
+  color: #334155;
+}
+
+input[type='date']:focus,
+input[type='time']:focus {
+  border-color: #54acb3;
+  box-shadow: 0 0 0 3px rgba(84, 172, 179, 0.18);
+}

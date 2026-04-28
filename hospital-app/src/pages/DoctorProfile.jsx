@@ -25,7 +25,6 @@ function DoctorProfile() {
 
     const [settings, setSettings] = useState({
         emailNotification: true,
-        twoFactor: false,
     });
 
     useEffect(() => {
@@ -222,18 +221,6 @@ function DoctorProfile() {
                                 <div className="dp-settings-row">
                                     <span className="dp-settings-label">Change Password</span>
                                     <button type="button" className="dp-settings-arrow">›</button>
-                                </div>
-                                <div className="dp-settings-row">
-                                    <span className="dp-settings-label">Two-Factor Authentication</span>
-                                    <button
-                                        type="button"
-                                        role="switch"
-                                        aria-checked={settings.twoFactor}
-                                        className={`dp-toggle${settings.twoFactor ? ' dp-toggle-on' : ''}`}
-                                        onClick={() => setSettings((s) => ({ ...s, twoFactor: !s.twoFactor }))}
-                                    >
-                                        <span className="dp-toggle-thumb" />
-                                    </button>
                                 </div>
                                 <div className="dp-settings-row">
                                     <span className="dp-settings-label">Email Notification</span>

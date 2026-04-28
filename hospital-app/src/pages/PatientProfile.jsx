@@ -26,7 +26,6 @@ function PatientProfile() {
     const [isSaving, setIsSaving] = useState(false);
     const [settings, setSettings] = useState({
         emailNotification: true,
-        twoFactor: false,
     });
 
     useEffect(() => {
@@ -244,18 +243,6 @@ function PatientProfile() {
                                         aria-checked={settings.emailNotification}
                                         className={`pp-toggle${settings.emailNotification ? ' pp-toggle-on' : ''}`}
                                         onClick={() => setSettings((s) => ({ ...s, emailNotification: !s.emailNotification }))}
-                                    >
-                                        <span className="pp-toggle-thumb" />
-                                    </button>
-                                </div>
-                                <div className="pp-settings-row">
-                                    <span className="pp-settings-label">Two-Factor Authentication</span>
-                                    <button
-                                        type="button"
-                                        role="switch"
-                                        aria-checked={settings.twoFactor}
-                                        className={`pp-toggle${settings.twoFactor ? ' pp-toggle-on' : ''}`}
-                                        onClick={() => setSettings((s) => ({ ...s, twoFactor: !s.twoFactor }))}
                                     >
                                         <span className="pp-toggle-thumb" />
                                     </button>

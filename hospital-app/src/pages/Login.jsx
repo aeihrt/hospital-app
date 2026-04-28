@@ -45,7 +45,7 @@ function Login() {
 
             const isDoctor = userRole === 'R002' || userRole === 'DOCTOR';
             const isPatient = userRole === 'R003' || userRole === 'PATIENT';
-            navigate(isDoctor ? '/doctor/appointments' : isPatient ? '/patient/find-doctors' : '/home');
+            navigate(isDoctor ? '/doctor/appointments' : isPatient ? '/patient/find-doctors' : '/dashboard');
         } catch (error) {
             setError(error?.message || 'An error occurred during login');
         } finally {
