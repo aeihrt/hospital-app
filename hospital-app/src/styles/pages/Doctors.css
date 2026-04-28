@@ -253,6 +253,10 @@
 	@apply relative w-full max-w-[760px] bg-[#f3f6fa] border border-[#c7d4df] rounded-2xl shadow-[0_20px_46px_rgba(0,0,0,0.27)] p-7;
 }
 
+.doctors-modal-compact {
+	@apply max-w-[640px] p-0 overflow-hidden;
+}
+
 .doctors-form-close {
 	@apply absolute top-4 right-4 border-0 bg-transparent text-[#1e1f22];
 }
@@ -284,6 +288,18 @@
 
 .doctors-form-actions {
 	@apply mt-2 flex justify-end gap-4;
+}
+
+.doctors-form-error {
+	@apply m-0 text-sm text-[#b34b4f] font-medium;
+}
+
+.doctors-form-hint {
+	@apply m-0 text-sm text-[#56758f];
+}
+
+.doctors-access-wrap {
+	@apply px-6 py-4 grid gap-3;
 }
 
 .doctors-cancel-btn {

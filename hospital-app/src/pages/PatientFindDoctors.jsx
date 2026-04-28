@@ -185,11 +185,11 @@ function PatientFindDoctors() {
 
             {/* Book Appointment Modal */}
             {showBookModal && (
-                <div className="pfd-modal-backdrop" onClick={closeBook}>
-                    <div className="pfd-modal" onClick={(e) => e.stopPropagation()}>
-                        <h2 className="pfd-modal-title">Book Appointment</h2>
+                <div className="pfd-modal-backdrop app-modal-backdrop" onClick={closeBook}>
+                    <div className="pfd-modal app-modal" onClick={(e) => e.stopPropagation()}>
+                        <h2 className="pfd-modal-title app-modal-title">Book Appointment</h2>
                         {bookError && <p className="pfd-modal-error">{bookError}</p>}
-                        <form className="pfd-modal-form" onSubmit={handleBook}>
+                        <form className="pfd-modal-form app-modal-body" onSubmit={handleBook}>
                             <div className="pfd-modal-row">
                                 <div className="pfd-field">
                                     <label className="pfd-field-label">Select Doctor</label>
@@ -246,7 +246,7 @@ function PatientFindDoctors() {
                                     onChange={(e) => setBookForm({ ...bookForm, reason: e.target.value })}
                                 />
                             </div>
-                            <div className="pfd-modal-footer">
+                            <div className="pfd-modal-footer app-modal-footer">
                                 <button type="button" className="pfd-modal-cancel-btn" onClick={closeBook}>
                                     Cancel
                                 </button>

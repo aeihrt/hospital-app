@@ -335,7 +335,7 @@ function Home() {
                                     id="patientName"
                                     name="patientName"
                                     type="text"
-                                    placeholder="Search patient name"
+                                    placeholder="e.g. Juan dela Cruz"
                                     value={newAppointment.patientName}
                                     onChange={handleAddInputChange}
                                     required
@@ -383,7 +383,7 @@ function Home() {
                                 <textarea
                                     id="notes"
                                     name="notes"
-                                    placeholder="Add appointment notes"
+                                    placeholder="Optional: clinical notes or special instructions"
                                     rows={5}
                                     value={newAppointment.notes}
                                     onChange={handleAddInputChange}

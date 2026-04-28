@@ -39,3 +39,27 @@ input[type='time']:focus {
   border-color: #54acb3;
   box-shadow: 0 0 0 3px rgba(84, 172, 179, 0.18);
 }
+
+.app-modal-backdrop {
+  @apply fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4;
+}
+
+.app-modal {
+  @apply bg-white rounded-2xl w-full max-w-md shadow-2xl border border-[#d5e0ea];
+}
+
+.app-modal-title-wrap {
+  @apply relative px-6 pt-5 pb-4 border-b border-[#e2e8f0];
+}
+
+.app-modal-title {
+  @apply text-base font-bold text-[#1f3557] m-0;
+}
+
+.app-modal-body {
+  @apply px-6 py-4 grid gap-3;
+}
+
+.app-modal-footer {
+  @apply flex items-center justify-end gap-3 px-6 py-4 border-t border-[#e2e8f0];
+}

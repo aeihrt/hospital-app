@@ -232,10 +232,10 @@ function PatientAppointments() {
 
             {/* View Appointment Modal */}
             {viewAppt && (
-                <div className="pa-modal-backdrop" onClick={() => setViewAppt(null)}>
-                    <div className="pa-modal" onClick={(e) => e.stopPropagation()}>
-                        <h2 className="pa-modal-title">{viewAppt.doctor}</h2>
-                        <div className="pa-modal-body">
+                <div className="pa-modal-backdrop app-modal-backdrop" onClick={() => setViewAppt(null)}>
+                    <div className="pa-modal app-modal" onClick={(e) => e.stopPropagation()}>
+                        <h2 className="pa-modal-title app-modal-title">{viewAppt.doctor}</h2>
+                        <div className="pa-modal-body app-modal-body">
                             <div className="pa-modal-row">
                                 <div className="pa-field">
                                     <label className="pa-field-label">Doctor</label>
@@ -271,7 +271,7 @@ function PatientAppointments() {
                                 <textarea className="pa-textarea" readOnly rows={3} value={viewAppt.reason} />
                             </div>
                         </div>
-                        <div className="pa-modal-footer">
+                        <div className="pa-modal-footer app-modal-footer">
                             <button type="button" className="pa-modal-close-btn" onClick={() => setViewAppt(null)}>
                                 Close
                             </button>
@@ -291,10 +291,10 @@ function PatientAppointments() {
 
             {/* Cancel Confirmation Modal */}
             {cancelAppt && (
-                <div className="pa-modal-backdrop" onClick={() => setCancelAppt(null)}>
-                    <div className="pa-modal" onClick={(e) => e.stopPropagation()}>
-                        <h2 className="pa-modal-title">{cancelAppt.doctor}</h2>
-                        <div className="pa-modal-body">
+                <div className="pa-modal-backdrop app-modal-backdrop" onClick={() => setCancelAppt(null)}>
+                    <div className="pa-modal app-modal" onClick={(e) => e.stopPropagation()}>
+                        <h2 className="pa-modal-title app-modal-title">{cancelAppt.doctor}</h2>
+                        <div className="pa-modal-body app-modal-body">
                             <div className="pa-cancel-warning">
                                 <p className="pa-cancel-warning-title">Are you sure?</p>
                                 <p className="pa-cancel-warning-text">
@@ -323,7 +323,7 @@ function PatientAppointments() {
                                 <input type="text" className="pa-input pa-input-danger" readOnly value="Cancelled" />
                             </div>
                         </div>
-                        <div className="pa-modal-footer">
+                        <div className="pa-modal-footer app-modal-footer">
                             <button type="button" className="pa-modal-close-btn" onClick={() => setCancelAppt(null)}>
                                 Keep Appointment
                             </button>

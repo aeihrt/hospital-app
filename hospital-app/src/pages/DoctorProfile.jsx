@@ -16,6 +16,7 @@ const DEFAULT_PROFILE = {
 
 function DoctorProfile() {
     const navigate = useNavigate();
+    const storedUserId = localStorage.getItem('user_id') || '';
     const [userName, setUserName] = useState('');
     const [loading, setLoading] = useState(true);
     const [profile, setProfile] = useState(DEFAULT_PROFILE);
@@ -28,7 +29,7 @@ function DoctorProfile() {
     });
 
     useEffect(() => {
-        const userId = localStorage.getItem('user_id');
+        const userId = storedUserId;
         if (!userId) { navigate('/login'); return; }
         const name = localStorage.getItem('user_name') || 'Doctor';
         setUserName(name);
@@ -57,7 +58,7 @@ function DoctorProfile() {
                 setLoading(false);
             }
         })();
-    }, [navigate]);
+    }, [navigate, storedUserId]);
 
     const handleLogout = () => {
         localStorage.removeItem('user_role');
@@ -72,6 +73,7 @@ function DoctorProfile() {
         try {
             const payload = {
                 doctorId: doctorId || undefined,
+                userId: storedUserId,
                 name: formData.fullName,
                 department: formData.specialty,
                 room: '',
@@ -88,7 +90,7 @@ function DoctorProfile() {
                 setSaveMsg('Save failed');
             }
         } catch (err) {
-            setSaveMsg('Save failed');
+            setSaveMsg(err?.message || 'Save failed');
         }
         setTimeout(() => setSaveMsg(''), 2500);
     };

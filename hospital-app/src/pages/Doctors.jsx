@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Plus, Users, CircleCheck, CircleX, Pencil, RefreshCcw, KeyRound, X } from 'lucide-react';
+﻿import { useEffect, useMemo, useState } from 'react';
+import { Plus, Users, CircleCheck, CircleX, Pencil, RefreshCcw, X } from 'lucide-react';
 import AppLayout from '../components/AppLayout';
 import FilterDropdown from '../components/FilterDropdown';
 import '../styles/pages/Doctors.css';
@@ -16,6 +16,37 @@ const EMPTY_DOCTOR_FORM = {
 	status: 'Active',
 };
 
+const DAY_OPTIONS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+function toInputTime(value) {
+	const text = String(value || '').trim();
+	if (!text || text === 'N/A') return '08:00';
+
+	const parsed = text.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+	if (!parsed) return '08:00';
+
+	let hour = parseInt(parsed[1], 10);
+	const minute = parsed[2];
+	const meridiem = (parsed[3] || '').toUpperCase();
+
+	if (meridiem === 'PM' && hour < 12) hour += 12;
+	if (meridiem === 'AM' && hour === 12) hour = 0;
+
+	return `${String(hour).padStart(2, '0')}:${minute}`;
+}
+
+function toDisplayTime(value) {
+	const text = String(value || '').trim();
+	const parsed = text.match(/^(\d{1,2}):(\d{2})$/);
+	if (!parsed) return 'N/A';
+
+	const hour24 = parseInt(parsed[1], 10);
+	const minute = parsed[2];
+	const ampm = hour24 >= 12 ? 'PM' : 'AM';
+	const hour12 = hour24 % 12 || 12;
+	return `${hour12}:${minute} ${ampm}`;
+}
+
 function Doctors() {
 	const [activeTab, setActiveTab] = useState('list');
 	const [statusFilter, setStatusFilter] = useState('All');
@@ -28,6 +59,23 @@ function Doctors() {
 	const [loading, setLoading] = useState(true);
 	const [isSavingDoctor, setIsSavingDoctor] = useState(false);
 	const [formError, setFormError] = useState('');
+	const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+	const [isSavingSchedule, setIsSavingSchedule] = useState(false);
+	const [scheduleError, setScheduleError] = useState('');
+	const [scheduleForm, setScheduleForm] = useState({
+		doctorId: '',
+		userId: '',
+		name: '',
+		day: 'Monday',
+		startTime: '08:00',
+		endTime: '12:00',
+		slotMinutes: '30',
+		scheduleStatus: 'Active',
+	});
+
+
+
+
 	const userName = localStorage.getItem('user_name') || 'Juan';
 
 	useEffect(() => {
@@ -91,6 +139,27 @@ function Doctors() {
 	};
 	const closeView = () => setIsViewOpen(false);
 
+	const openScheduleModal = (doctor) => {
+		setSelectedDoctor(doctor);
+		setScheduleForm({
+			doctorId: doctor.doctorId || '',
+			userId: doctor.userId || '',
+			name: doctor.name || '',
+			day: doctor.day && doctor.day !== 'N/A' ? doctor.day : 'Monday',
+			startTime: toInputTime(doctor.start),
+			endTime: toInputTime(doctor.end === 'N/A' ? '12:00 PM' : doctor.end),
+			slotMinutes: String(doctor.slot || 30),
+			scheduleStatus: doctor.status || 'Active',
+		});
+		setScheduleError('');
+		setIsScheduleModalOpen(true);
+	};
+
+	const closeScheduleModal = () => {
+		setAccessCode('');
+		setAccessMessage('');
+	};
+
 	const handleFormChange = (event) => {
 		const { name, value } = event.target;
 		setDoctorForm((prev) => ({ ...prev, [name]: value }));
@@ -152,11 +221,94 @@ function Doctors() {
 		}
 	};
 
+	const handleScheduleSubmit = async (event) => {
+		event.preventDefault();
+
+		if (!scheduleForm.day || !scheduleForm.startTime || !scheduleForm.endTime) {
+			setScheduleError('Please complete the schedule fields.');
+			return;
+		}
+
+		const slotMinutes = Number(scheduleForm.slotMinutes);
+		if (!Number.isFinite(slotMinutes) || slotMinutes < 5 || slotMinutes > 240) {
+			setScheduleError('Slot minutes must be between 5 and 240.');
+			return;
+		}
+
+		try {
+			setIsSavingSchedule(true);
+			setScheduleError('');
+
+			await postJson('doctors.php', {
+				doctorId: scheduleForm.doctorId,
+				userId: scheduleForm.userId,
+				day: scheduleForm.day,
+				startTime: scheduleForm.startTime,
+				endTime: scheduleForm.endTime,
+				slotMinutes,
+				scheduleStatus: scheduleForm.scheduleStatus,
+			});
+
+			setDoctors((previous) => previous.map((doctor) => {
+				if (doctor.doctorId !== scheduleForm.doctorId) return doctor;
+
+				const updatedSchedule = {
+					scheduleId: `local-${Date.now()}`,
+					day: scheduleForm.day,
+					time: `${toDisplayTime(scheduleForm.startTime)} - ${toDisplayTime(scheduleForm.endTime)}`,
+					slotMinutes,
+					isActive: scheduleForm.scheduleStatus === 'Active',
+				};
+
+				return {
+					...doctor,
+					day: scheduleForm.day,
+					start: toDisplayTime(scheduleForm.startTime),
+					end: toDisplayTime(scheduleForm.endTime),
+					slot: slotMinutes,
+					schedules: [updatedSchedule],
+				};
+			}));
+
+			closeScheduleModal();
+		} catch (error) {
+			setScheduleError(error?.message || 'Failed to update schedule.');
+		} finally {
+			setAccessMessage('Unable to copy automatically. Please copy it manually.');
+		}
+	};
+
 	const handleLogout = () => {
 		localStorage.removeItem('user_role');
 		localStorage.removeItem('user_id');
 		localStorage.removeItem('user_name');
 		window.location.href = '/login';
+	};
+
+	const handleToggleStatus = async (doctor) => {
+		const nextStatus = doctor.status === 'Active' ? 'Inactive' : 'Active';
+
+		try {
+			await postJson('doctors.php', {
+				doctorId: doctor.doctorId,
+				userId: doctor.userId,
+				name: doctor.name,
+				license: doctor.license,
+				department: doctor.specialty,
+				room: doctor.room,
+				phone: doctor.phone,
+				email: doctor.email,
+				status: nextStatus,
+			});
+
+			setDoctors((previous) => previous.map((item) => (
+				item.doctorId === doctor.doctorId
+					? { ...item, status: nextStatus }
+					: item
+			)));
+		} catch (error) {
+			console.error('Failed to update doctor status:', error);
+		}
 	};
 
 	return (
@@ -253,6 +405,7 @@ function Doctors() {
 										<button
 											type="button"
 											className={`doctors-card-state-btn ${doctor.status === 'Active' ? 'doctors-card-state-btn-danger' : 'doctors-card-state-btn-success'}`}
+											onClick={() => handleToggleStatus(doctor)}
 										>
 											{doctor.status === 'Active' ? 'Deactivate' : 'Activate'}
 										</button>
@@ -292,8 +445,7 @@ function Doctors() {
 											<td>
 												<div className="doctors-actions-inline">
 													<button type="button" className="doctors-action-icon" aria-label="Edit doctor" onClick={() => openForm(doctor)}><Pencil size={14} /></button>
-													<button type="button" className="doctors-action-icon" aria-label="Refresh doctor"><RefreshCcw size={14} /></button>
-													<button type="button" className="doctors-action-icon" aria-label="Access doctor"><KeyRound size={14} /></button>
+													<button type="button" className="doctors-action-icon" aria-label="Refresh doctor" onClick={() => openScheduleModal(doctor)}><RefreshCcw size={14} /></button>
 												</div>
 											</td>
 										</tr>
@@ -305,8 +457,8 @@ function Doctors() {
 				)}
 
 				{isViewOpen && selectedDoctor && (
-					<div className="doctors-view-overlay" onClick={closeView}>
-						<div className="doctors-view-modal" onClick={(event) => event.stopPropagation()}>
+					<div className="doctors-view-overlay app-modal-backdrop" onClick={closeView}>
+						<div className="doctors-view-modal app-modal" onClick={(event) => event.stopPropagation()}>
 							<header className="doctors-view-head">
 								<div className="doctors-avatar doctors-avatar-large">{selectedDoctor.name.split(' ').map((part) => part[0]).join('').slice(0, 2)}</div>
 								<p className="doctors-profile-name doctors-profile-name-large">{selectedDoctor.name}</p>
@@ -340,8 +492,8 @@ function Doctors() {
 				)}
 
 				{isFormOpen && (
-					<div className="doctors-form-overlay" onClick={closeForm}>
-						<div className="doctors-form-modal" onClick={(event) => event.stopPropagation()}>
+					<div className="doctors-form-overlay app-modal-backdrop" onClick={closeForm}>
+						<div className="doctors-form-modal app-modal" onClick={(event) => event.stopPropagation()}>
 							<button type="button" className="doctors-form-close" onClick={closeForm} aria-label="Close doctor form">
 								<X size={30} />
 							</button>
@@ -349,7 +501,7 @@ function Doctors() {
 							<form className="doctors-form-grid" onSubmit={handleFormSubmit}>
 								<div className="doctors-form-field doctors-form-field-full">
 									<label htmlFor="doctorName">Full Name</label>
-									<input id="doctorName" name="name" value={doctorForm.name} onChange={handleFormChange} placeholder="e.g. Maria" required />
+									<input id="doctorName" name="name" value={doctorForm.name} onChange={handleFormChange} placeholder="e.g. Dr. Maria Santos" required />
 								</div>
 
 								<div className="doctors-form-field">
@@ -374,7 +526,7 @@ function Doctors() {
 
 								<div className="doctors-form-field doctors-form-field-full">
 									<label htmlFor="doctorEmail">Email</label>
-									<input id="doctorEmail" name="email" type="email" value={doctorForm.email} onChange={handleFormChange} placeholder="Select role" required />
+									<input id="doctorEmail" name="email" type="email" value={doctorForm.email} onChange={handleFormChange} placeholder="e.g. dr.santos@hospital.com" required />
 								</div>
 
 								<div className="doctors-form-field doctors-form-field-full">
@@ -395,6 +547,92 @@ function Doctors() {
 							</form>
 						</div>
 					</div>
+				)}
+
+				{isScheduleModalOpen && (
+					<div className="doctors-form-overlay app-modal-backdrop" onClick={closeScheduleModal}>
+						<div className="doctors-form-modal doctors-modal-compact app-modal" onClick={(event) => event.stopPropagation()}>
+							<div className="app-modal-title-wrap">
+								<h3 className="app-modal-title">Update Doctor Schedule</h3>
+								<button type="button" className="doctors-form-close" onClick={closeScheduleModal} aria-label="Close schedule modal">
+									<X size={24} />
+								</button>
+							</div>
+
+							<form className="doctors-form-grid app-modal-body" onSubmit={handleScheduleSubmit}>
+								<div className="doctors-form-field doctors-form-field-full">
+									<label htmlFor="scheduleDoctor">Doctor</label>
+									<input id="scheduleDoctor" value={scheduleForm.name} readOnly />
+								</div>
+
+								<div className="doctors-form-field">
+									<label htmlFor="scheduleDay">Day</label>
+									<FilterDropdown
+										value={scheduleForm.day}
+										options={DAY_OPTIONS}
+										onChange={(day) => setScheduleForm((previous) => ({ ...previous, day }))}
+										ariaLabel="Select schedule day"
+										className="doctors-form-dropdown"
+									/>
+								</div>
+
+								<div className="doctors-form-field">
+									<label htmlFor="scheduleSlot">Slot Minutes</label>
+									<input
+										id="scheduleSlot"
+										type="number"
+										min="5"
+										max="240"
+										step="5"
+										value={scheduleForm.slotMinutes}
+										onChange={(event) => setScheduleForm((previous) => ({ ...previous, slotMinutes: event.target.value }))}
+									/>
+								</div>
+
+								<div className="doctors-form-field">
+									<label htmlFor="scheduleStart">Start Time</label>
+									<input
+										id="scheduleStart"
+										type="time"
+										value={scheduleForm.startTime}
+										onChange={(event) => setScheduleForm((previous) => ({ ...previous, startTime: event.target.value }))}
+										required
+									/>
+								</div>
+
+								<div className="doctors-form-field">
+									<label htmlFor="scheduleEnd">End Time</label>
+									<input
+										id="scheduleEnd"
+										type="time"
+										value={scheduleForm.endTime}
+										onChange={(event) => setScheduleForm((previous) => ({ ...previous, endTime: event.target.value }))}
+										required
+									/>
+								</div>
+
+								<div className="doctors-form-field doctors-form-field-full">
+									<label htmlFor="scheduleStatus">Schedule Status</label>
+									<FilterDropdown
+										value={scheduleForm.scheduleStatus}
+										options={['Active', 'Inactive']}
+										onChange={(scheduleStatus) => setScheduleForm((previous) => ({ ...previous, scheduleStatus }))}
+										ariaLabel="Select schedule status"
+										className="doctors-form-dropdown"
+									/>
+								</div>
+
+								{scheduleError && <p className="doctors-form-error doctors-form-field-full">{scheduleError}</p>}
+
+								<div className="doctors-form-actions doctors-form-field-full app-modal-footer">
+									<button type="button" className="doctors-cancel-btn" onClick={closeScheduleModal}>Cancel</button>
+									<button type="submit" className="doctors-update-btn" disabled={isSavingSchedule}>
+										{isSavingSchedule ? 'Saving...' : 'Save Schedule'}
+									</button>
+								</div>
+							</form>
+							</div>
+						</div>
 				)}
 			</main>
 		</AppLayout>

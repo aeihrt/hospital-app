@@ -183,3 +183,51 @@
 .manage-save-btn {
     @apply border border-[#415473] bg-[#415473] text-white;
 }
+
+.manage-form-error {
+    @apply col-span-1 md:col-span-2 text-sm text-[#bc5155] bg-[#fce8e9] border border-[#efcfd1] rounded-lg px-3 py-2;
+}
+
+.manage-confirm-modal {
+    @apply max-w-[480px];
+}
+
+.manage-confirm-body {
+    @apply p-5;
+}
+
+.manage-confirm-text {
+    @apply text-[#1f3557] text-base mb-2;
+}
+
+.manage-confirm-sub {
+    @apply text-sm text-[#5a7494] mb-0;
+}
+
+.manage-text-active {
+    @apply text-[#34a064] font-medium;
+}
+
+.manage-text-inactive {
+    @apply text-[#bc5155] font-medium;
+}
+
+.manage-confirm-actions {
+    @apply flex justify-end gap-4 mt-5;
+}
+
+.manage-password-form {
+    @apply grid-cols-1 md:grid-cols-1;
+}
+
+.manage-password-wrap {
+    @apply relative flex items-center;
+}
+
+.manage-password-wrap input {
+    @apply w-full pr-10;
+}
+
+.manage-password-toggle {
+    @apply absolute right-3 text-[#6f93ad] bg-transparent border-0 p-0 leading-none;
+}

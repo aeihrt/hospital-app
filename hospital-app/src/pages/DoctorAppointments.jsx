@@ -7,6 +7,15 @@ import { getJson } from '../utils/api';
 
 // appointments will be loaded from backend
 
+function normalizeStatus(status) {
+    const value = String(status || '').toUpperCase();
+    if (value === 'BOOKED') return 'Upcoming';
+    if (value === 'COMPLETED') return 'Completed';
+    if (value === 'CANCELED' || value === 'CANCELLED') return 'Cancelled';
+    if (value === 'NO_SHOW') return 'Cancelled';
+    return status || 'Upcoming';
+}
+
 const STATUS_BADGE = {
     Booked: 'da-badge-booked',
     Completed: 'da-badge-completed',
@@ -31,7 +40,11 @@ function DoctorAppointments() {
         (async () => {
             try {
                 const res = await getJson(`appointments.php?doctorUserId=${userId}`);
-                setAppointments(res.appointments || []);
+                const mapped = (res.appointments || []).map((appointment) => ({
+                    ...appointment,
+                    status: normalizeStatus(appointment.status),
+                }));
+                setAppointments(mapped);
             } catch (err) {
                 // ignore
             } finally {
@@ -59,7 +72,7 @@ function DoctorAppointments() {
             );
         }
         return list;
-    }, [activeFilter, searchTerm]);
+    }, [appointments, activeFilter, searchTerm]);
 
     const todayCount = appointments.filter((a) => a.date === (new Date()).toLocaleString('default', { month: 'long', day: 'numeric', year: 'numeric' })).length;
     const upcomingCount = appointments.filter((a) => a.status === 'Upcoming' || a.status === 'Booked').length;

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/pages/DoctorSchedule.css';
 import AppLayout from '../components/AppLayout';
-import { getJson } from '../utils/api';
+import { getJson, postJson } from '../utils/api';
 import FilterDropdown from '../components/FilterDropdown';
 
 const DAY_OPTIONS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -35,8 +35,10 @@ const INITIAL_SCHEDULE = {
 
 function DoctorSchedule() {
     const navigate = useNavigate();
+    const storedUserId = localStorage.getItem('user_id') || '';
     const [userName, setUserName] = useState('');
     const [loading, setLoading] = useState(true);
+    const [doctorId, setDoctorId] = useState('');
     const [schedule, setSchedule] = useState(INITIAL_SCHEDULE);
     const [form, setForm] = useState({
         day: 'Monday',
@@ -48,7 +50,7 @@ function DoctorSchedule() {
     const [saveMsg, setSaveMsg] = useState('');
 
     useEffect(() => {
-        const userId = localStorage.getItem('user_id');
+        const userId = storedUserId;
         if (!userId) { navigate('/login'); return; }
         setUserName(localStorage.getItem('user_name') || 'Doctor');
         (async () => {
@@ -56,12 +58,18 @@ function DoctorSchedule() {
                 const res = await getJson('doctors.php');
                 const found = (res.doctors || []).find((d) => d.userId === userId);
                 if (found && Array.isArray(found.schedules)) {
+                    setDoctorId(found.doctorId || '');
                     const mapped = {};
                     found.schedules.forEach((s) => {
                         if (!mapped[s.day]) mapped[s.day] = [];
-                        mapped[s.day].push({ time: s.time, status: s.isActive ? 'Open' : 'Inactive' });
+                        mapped[s.day].push({
+                            time: s.time,
+                            status: s.isActive ? 'Open' : 'Inactive',
+                        });
                     });
-                    setSchedule(mapped);
+                    if (Object.keys(mapped).length > 0) {
+                        setSchedule(mapped);
+                    }
                 }
             } catch (err) {
                 // ignore
@@ -69,7 +77,7 @@ function DoctorSchedule() {
                 setLoading(false);
             }
         })();
-    }, [navigate]);
+    }, [navigate, storedUserId]);
 
     const handleLogout = () => {
         localStorage.removeItem('user_role');
@@ -82,20 +90,75 @@ function DoctorSchedule() {
     const totalSlots = allSlots.length;
     const bookedSlots = allSlots.filter((s) => s.status === 'Taken').length;
 
-    const handleSave = (e) => {
+    const toMinutes = (timeValue) => {
+        const value = String(timeValue || '').trim();
+        const match = value.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+        if (!match) return null;
+
+        let hour = parseInt(match[1], 10);
+        const minute = parseInt(match[2], 10);
+        const meridiem = (match[3] || '').toUpperCase();
+
+        if (Number.isNaN(hour) || Number.isNaN(minute) || minute > 59) return null;
+
+        if (meridiem === 'PM' && hour < 12) hour += 12;
+        if (meridiem === 'AM' && hour === 12) hour = 0;
+
+        if (!meridiem && hour > 23) return null;
+
+        return (hour * 60) + minute;
+    };
+
+    const toDisplay = (totalMinutes) => {
+        const hour24 = Math.floor(totalMinutes / 60);
+        const minute = totalMinutes % 60;
+        const ampm = hour24 >= 12 ? 'PM' : 'AM';
+        const hour12 = hour24 % 12 || 12;
+        return `${hour12}:${String(minute).padStart(2, '0')} ${ampm}`;
+    };
+
+    const handleSave = async (e) => {
         e.preventDefault();
-        const start = parseInt(form.startTime.split(':')[0], 10);
-        const end = parseInt(form.endTime.split(':')[0], 10);
+        const start = toMinutes(form.startTime);
+        const end = toMinutes(form.endTime);
         const duration = parseInt(form.slotDuration, 10) || 30;
-        const slots = [];
-        for (let h = start; h < end; ) {
-            const ampm = h < 12 ? 'AM' : 'PM';
-            const display = `${h > 12 ? h - 12 : h || 12}:00 ${ampm}`;
-            slots.push({ time: display, status: 'Open' });
-            h += duration / 60;
+
+        if (start === null || end === null || end <= start) {
+            setSaveMsg('Please enter a valid time range.');
+            setTimeout(() => setSaveMsg(''), 2500);
+            return;
         }
+
+        const slots = [];
+        for (let minutes = start; minutes < end; minutes += duration) {
+            slots.push({ time: toDisplay(minutes), status: 'Open' });
+        }
+
+        try {
+            await postJson('doctors.php', {
+                doctorId,
+                userId: storedUserId,
+                day: form.day,
+                startTime: form.startTime,
+                endTime: form.endTime,
+                slotMinutes: duration,
+                scheduleStatus: form.status,
+            });
+
+            if (!doctorId) {
+                const refresh = await getJson('doctors.php');
+                const found = (refresh.doctors || []).find((d) => d.userId === storedUserId);
+                if (found?.doctorId) {
+                    setDoctorId(found.doctorId);
+                }
+            }
+
+            setSaveMsg('Schedule saved!');
+        } catch (error) {
+            setSaveMsg(error?.message || 'Failed to save schedule.');
+        }
+
         setSchedule((prev) => ({ ...prev, [form.day]: slots }));
-        setSaveMsg('Schedule saved!');
         setTimeout(() => setSaveMsg(''), 2500);
     };
 
