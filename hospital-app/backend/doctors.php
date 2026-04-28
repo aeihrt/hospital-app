@@ -25,16 +25,6 @@ function dayNameFromIndex($dayOfWeek)
         3 => 'Wednesday',
         4 => 'Thursday',
         5 => 'Friday',
-        6 => 'Saturday',
-    ];
-
-    return $days[(int) $dayOfWeek] ?? 'Unknown';
-}
-
-function timeRangeLabel($startTime, $endTime)
-{
-    $start = strtotime($startTime);
-    $end = strtotime($endTime);
 
     if ($start === false || $end === false) {
         return trim($startTime . ' - ' . $endTime);
@@ -66,19 +56,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             LEFT JOIN users u ON u.user_id = d.user_id
             ORDER BY d.created_at DESC
         ';
-
-        $doctorResult = $conn->query($doctorSql);
-        $schedulesResult = $conn->query('
-            SELECT schedule_id, doctor_id, day_of_week, start_time, end_time, slot_minutes, is_active
-            FROM doctor_schedules
-            ORDER BY day_of_week ASC, start_time ASC
-        ');
-
-        $scheduleMap = [];
-        if ($schedulesResult) {
-            while ($schedule = $schedulesResult->fetch_assoc()) {
-                $doctorId = $schedule['doctor_id'];
-                if (!isset($scheduleMap[$doctorId])) {
                     $scheduleMap[$doctorId] = [];
                 }
 
@@ -94,7 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
         $doctors = [];
         if ($doctorResult) {
-            while ($row = $doctorResult->fetch_assoc()) {
                 $doctorSchedules = $scheduleMap[$row['doctor_id']] ?? [];
                 $primarySchedule = $doctorSchedules[0] ?? null;
                 $fullName = trim((string) ($row['full_name'] ?: trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''))));
